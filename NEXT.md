@@ -1,9 +1,24 @@
+# >>> RESUME HERE (2026-10-17, usage limit)
+- Sweet Vanilla 0.1 builds and boots in GitHub Actions (workflow "Build and boot ChangeOS"). Verified on the running OS: display id "ChangeOS 0.1 Sweet Vanilla", ChangeOS launcher installed as a priv-app, Termux/Aurora/Firefox present, Google Play absent.
+- Blocker: SurfaceFlinger crashes ("!hasReadColorBufferDma" assertion) under the swiftshader renderer, so the screen falls back to the boot animation and the launcher is never visible. GLDMA/GLDMA2 off didn't help.
+- Run 39072808813 tests 3 GPU renderers in parallel (swangle_indirect, guest, swiftshader_indirect). Download artifacts changeos-media-<gpu>, check shots/ and report.txt (home app should be os.changeos.launcher/.HomeActivity, not FallbackHome). Keep the renderer that works.
+- CYD: bridge + quiz run as `node esp32/bridge/cyd-bridge.js COM3` and `node esp32/bridge/fun-questions.js 0.5 1.5`. Answers in logs/cyd-answers.log.
+- User picks from the CYD: launcher first, Stack clock + PIN lock screen, silent boot, monochrome icons, blue accent, JetBrains Mono, website changelog, 0.2 = Salted Caramel.
+
 # Next up (picked by the user on the CYD, 2026-10-17)
 - **Custom launcher**: the Fog home screen as a real ChangeOS launcher app (date card, monochrome icons, dock). Now built in apps/launcher (Sweet Vanilla).
+
+# Real phone (user wants to flash it, buying a phone later)
+- User's current phone can't be unlocked. Recommended: used Pixel 6a/7a/8a, factory unlocked (not Verizon).
+- Needs: arm64 GSI + arm64 Firefox/Termux in CI, vbmeta with verification disabled, fastboot flashing guide.
 
 # Codenames
 - 0.1 **Sweet Vanilla** (current)
 - 0.2 **Salted Caramel** (picked by the user on the CYD, 2026-10-17)
+
+# Website
+- Add a changelog page (picked on the CYD). First entry: Sweet Vanilla 0.1.
+- Framing: "the Linux philosophy, not a Linux distro" (real Linux on phones = postmarketOS).
 
 # Ideas
 - **Declarative phone config (Nix-style)**: one file (theme, accent, apps, settings) that the user edits and the OS applies. Inspired by NixOS.
