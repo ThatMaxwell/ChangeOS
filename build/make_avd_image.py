@@ -2,6 +2,7 @@
 
 Run with Windows Python after build/patch_gsi.py:  python build/make_avd_image.py
 """
+import os
 import shutil
 import struct
 import subprocess
@@ -9,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BASE = Path.home() / "AppData/Local/Android/Sdk/system-images/android-37.0/google_apis/x86_64"
+BASE = Path(os.environ.get("BASE_IMAGE", Path.home() / "AppData/Local/Android/Sdk/system-images/android-37.0/google_apis/x86_64"))
 DST = ROOT / "avd-image"
 GSI = ROOT / "work/system.img"
 SUPER_OFFSET = 4096 * 512   # GPT partition 2

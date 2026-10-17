@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copy the GSI system.img into work/, make it writable (unshare deduped blocks) and grow it.
 set -euo pipefail
-ROOT=/mnt/c/Users/CARLINHOS/Important/ChangeOS
+ROOT=${CHANGEOS_ROOT:-/mnt/c/Users/CARLINHOS/Important/ChangeOS}
 SIZE=${1:-3400M}
 mkdir -p "$ROOT/work"
 IMG="$ROOT/work/system.img"

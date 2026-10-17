@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import zipfile
 
-ROOT = "/mnt/c/Users/CARLINHOS/Important/ChangeOS"
+ROOT = os.environ.get("CHANGEOS_ROOT", "/mnt/c/Users/CARLINHOS/Important/ChangeOS")
 IMG = f"{ROOT}/work/system.img"
 LABEL = "u:object_r:system_file:s0"
 VERSION = "0.1"

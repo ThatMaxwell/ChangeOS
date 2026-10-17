@@ -1,0 +1,94 @@
+name: Build and boot ChangeOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["build/**", "ci/**", "out/bootanimation.zip", ".github/workflows/boot.yml"]
+
+jobs:
+  boot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      CHANGEOS_ROOT: ${{ github.workspace }}
+      GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_x86_64-exp-DP11.260918.006-16451184-cedd5df1.zip
+      GSI_SHA256: cedd5df1e993363eeb699a585b8c7447c6b8f0de69510e4679d37ce76c0f8945
+      SYSIMG: system-images;android-37.0;google_apis;x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL /usr/local/lib/node_modules
+          df -h /
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
+      - name: Tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq e2fsprogs ffmpeg >/dev/null
+          e2fsck -V
+
+      - name: Download GSI and apps
+        run: |
+          mkdir -p gsi/extracted downloads/aurora downloads/firefox
+          curl -sSfL -o gsi.zip "$GSI_URL"
+          echo "$GSI_SHA256  gsi.zip" | sha256sum -c -
+          unzip -q gsi.zip -d gsi/extracted && rm gsi.zip
+          curl -sSfL -o downloads/aurora/aurora-4.8.4.apk https://f-droid.org/repo/com.aurora.store_76.apk
+          curl -sSfL -o downloads/firefox/firefox-158.0-x86_64.apk https://archive.mozilla.org/pub/fenix/releases/158.0/android/fenix-158.0-android-x86_64/fenix-158.0.multi.android-x86_64.apk
+          ls -la gsi/extracted downloads/*
+
+      - name: Patch GSI into ChangeOS
+        run: |
+          bash build/prep_image.sh 3400M | tail -6
+          python3 build/patch_gsi.py
+          e2fsck -fn work/system.img | tail -2
+          rm gsi/extracted/system.img
+
+      - name: Install emulator and base image
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "emulator" "platform-tools" "$SYSIMG" >/dev/null
+          ls "$ANDROID_HOME/system-images/android-37.0/google_apis/x86_64"
+
+      - name: Build ChangeOS emulator disk
+        run: |
+          export BASE_IMAGE="$ANDROID_HOME/system-images/android-37.0/google_apis/x86_64"
+          python3 build/make_avd_image.py
+          rm -f work/system.img
+          echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n ChangeOS -k "$SYSIMG" -f
+          CFG="$HOME/.android/avd/ChangeOS.avd/config.ini"
+          printf 'hw.lcd.width=1080\nhw.lcd.height=2400\nhw.lcd.density=420\nhw.keyboard=yes\nhw.ramSize=4096\nhw.cpu.ncore=4\ndisk.dataPartition.size=4G\n' >> "$CFG"
+          python3 - "$CFG" <<'PY'
+          import sys
+          p = sys.argv[1]; d = {}
+          for l in open(p):
+              if "=" in l:
+                  k, v = l.rstrip("\n").split("=", 1); d[k.strip()] = v.strip()
+          d.pop("disk.dataPartition.path", None)
+          open(p, "w").write("".join(f"{k}={v}\n" for k, v in d.items()))
+          PY
+          cat "$CFG"
+          df -h /
+
+      - name: Boot and capture
+        run: bash ci/boot_and_capture.sh
+
+      - name: Upload media
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: changeos-media
+          path: |
+            media/*.gif
+            media/*.mp4
+            media/*.txt
+            media/shots/*.png
+          if-no-files-found: warn
