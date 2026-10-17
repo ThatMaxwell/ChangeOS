@@ -9,6 +9,10 @@ on:
 jobs:
   boot:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        gpu: [swangle_indirect, guest, swiftshader_indirect]
     timeout-minutes: 75
     env:
       CHANGEOS_ROOT: ${{ github.workspace }}
@@ -96,13 +100,15 @@ jobs:
           df -h /
 
       - name: Boot and capture
+        env:
+          GPU_MODE: ${{ matrix.gpu }}
         run: bash ci/boot_and_capture.sh
 
       - name: Upload media
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: changeos-media
+          name: changeos-media-${{ matrix.gpu }}
           path: |
             media/*.gif
             media/*.mp4

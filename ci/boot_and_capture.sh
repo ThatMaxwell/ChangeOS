@@ -36,7 +36,7 @@ mkdir -p "$OUT/console-shots"
 
 log "starting emulator"
 "$EMU" -avd ChangeOS -sysdir "$ROOT/avd-image" -no-window -no-audio -no-snapshot -wipe-data \
-  -gpu swiftshader_indirect -camera-back none -camera-front none -feature -GLDMA,-GLDMA2 -logcat '*:W' -logcat-output "$OUT/logcat-boot.txt" \
+  -gpu "${GPU_MODE:-swiftshader_indirect}" -camera-back none -camera-front none -feature -GLDMA,-GLDMA2 -logcat '*:W' -logcat-output "$OUT/logcat-boot.txt" \
   > "$OUT/emulator.txt" 2>&1 &
 EMU_PID=$!
 
