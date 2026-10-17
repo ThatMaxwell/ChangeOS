@@ -94,6 +94,7 @@ jobs:
             media/*.gif
             media/*.mp4
             media/*.txt
+            media/*.webm
             media/shots/*.png
             media/console-shots/*.png
           if-no-files-found: warn

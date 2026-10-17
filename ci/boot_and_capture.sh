@@ -30,7 +30,7 @@ mkdir -p "$OUT/console-shots"
 
 log "starting emulator"
 "$EMU" -avd ChangeOS -sysdir "$ROOT/avd-image" -no-window -no-audio -no-snapshot -wipe-data \
-  -gpu swiftshader_indirect -camera-back none -camera-front none -show-kernel -logcat '*:W' \
+  -gpu swiftshader_indirect -camera-back none -camera-front none -logcat '*:W' -logcat-output "$OUT/logcat-boot.txt" \
   > "$OUT/emulator.txt" 2>&1 &
 EMU_PID=$!
 
@@ -72,7 +72,7 @@ console_media() {
 
 if [ $up = 0 ]; then
   log "adb never reached 'device'. what's crashing (logcat via virtconsole):"
-  grep -aE "FATAL EXCEPTION|Fatal signal|Process: |beginning of crash|AndroidRuntime|E/.*Exception" "$OUT/emulator.txt" | sort | uniq -c | sort -rn | head -40
+  grep -ahE "FATAL EXCEPTION|Fatal signal|Process: |beginning of crash|AndroidRuntime|E/.*Exception" "$OUT/emulator.txt" "$OUT/logcat-boot.txt" | sort | uniq -c | sort -rn | head -40
   log "kernel/init tail:"
   grep -aE "Kernel panic|avb|fs_mgr|first_stage|adbd|bootanim|boot_completed" "$OUT/emulator.txt" | tail -30
   console_media
