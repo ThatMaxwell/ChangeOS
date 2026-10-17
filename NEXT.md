@@ -1,3 +1,13 @@
+# Next up (picked by the user on the CYD, 2026-10-17)
+- **Custom launcher**: the Fog home screen as a real ChangeOS launcher app (date card, monochrome icons, dock). Now built in apps/launcher (Sweet Vanilla).
+
+# Codenames
+- 0.1 **Sweet Vanilla** (current)
+- 0.2 **Salted Caramel** (picked by the user on the CYD, 2026-10-17)
+
+# Ideas
+- **Declarative phone config (Nix-style)**: one file (theme, accent, apps, settings) that the user edits and the OS applies. Inspired by NixOS.
+
 # Status 2026-10-17
 - The patched ChangeOS image is built (avd-image/) with debloat, Aurora, Firefox, bootanim and props. Rebuild steps: build/prep_image.sh, then patch_gsi.py, then make_avd_image.py (the scripts are in build/, and the WSL 1 distro is "ChangeOS-Ubuntu").
 - **The local emulator can't run on this PC.** The emulator segfaults (139) at VM start under WHPX even with Google's stock Android 17 image and 1 core. The CPU is an i5-2400 (Sandy Bridge). Don't retry locally.

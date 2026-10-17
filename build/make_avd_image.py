@@ -38,10 +38,14 @@ def main():
         f.seek(VBMETA_OFFSET + 120)
         f.write(struct.pack(">I", 3))
 
-    # GLDMA breaks `screencap` with this system ("hasReadColorBufferDma" assertion)
+    # GPU readback over DMA (GLDMA/GLDMA2) crashes screencap and SurfaceFlinger's RegionSampling
+    # with this system ("hasReadColorBufferDma" assertion), so switch both off
     feats = DST / "advancedFeatures.ini"
     if feats.exists():
-        feats.write_text(feats.read_text().replace("GLDMA = on", "GLDMA = off"))
+        txt = feats.read_text().replace("GLDMA = on", "GLDMA = off").replace("GLDMA2 = on", "GLDMA2 = off")
+        if "GLDMA2" not in txt:
+            txt += "GLDMA2 = off\n"
+        feats.write_text(txt)
 
     # The emulator passes these to Android as boot params. A locked device rejects a modified system
     # ("PUBLIC_KEY_REJECTED isn't allowed"), so boot it the way an unlocked phone runs a custom ROM.

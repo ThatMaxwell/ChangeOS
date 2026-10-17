@@ -36,7 +36,7 @@ mkdir -p "$OUT/console-shots"
 
 log "starting emulator"
 "$EMU" -avd ChangeOS -sysdir "$ROOT/avd-image" -no-window -no-audio -no-snapshot -wipe-data \
-  -gpu swiftshader_indirect -camera-back none -camera-front none -feature -GLDMA -logcat '*:W' -logcat-output "$OUT/logcat-boot.txt" \
+  -gpu swiftshader_indirect -camera-back none -camera-front none -feature -GLDMA,-GLDMA2 -logcat '*:W' -logcat-output "$OUT/logcat-boot.txt" \
   > "$OUT/emulator.txt" 2>&1 &
 EMU_PID=$!
 
@@ -89,7 +89,7 @@ log "adb up, capturing boot frames"
 i=0; booted=0
 for _ in $(seq 1 900); do
   if ! kill -0 $EMU_PID 2>/dev/null; then log "emulator exited"; break; fi
-  "$ADB" exec-out screencap -p > "$OUT/boot/$(printf %04d $i).png" 2>/dev/null && [ -s "$OUT/boot/$(printf %04d $i).png" ] && i=$((i+1))
+  i=$((i+1))  # boot frames come from the console recording; guest screencap crashes on GPU readback
   if [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then booted=1; break; fi
   sleep 0.4
 done
