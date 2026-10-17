@@ -15,6 +15,7 @@
 # Codenames
 - 0.1 **Sweet Vanilla** (current)
 - 0.2 **Salted Caramel** (picked by the user on the CYD, 2026-10-17)
+- 0.3 **IceCream Sandwich**: the BIG update (an ice cream sandwich barely holds its ice cream, and this release barely holds its changes)
 
 # Website
 - Add a changelog page (picked on the CYD). First entry: Sweet Vanilla 0.1.
