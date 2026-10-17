@@ -11,15 +11,38 @@ EMU="$ANDROID_HOME/emulator/emulator"
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 shot() { "$ADB" exec-out screencap -p > "$OUT/shots/$1.png" 2>/dev/null && log "shot $1"; }
 
+# ChangeOS is a user build (ro.adb.secure=1): the emulator must hand Android our adb key to pre-authorize it
+for d in "$HOME/.android" "${ANDROID_USER_HOME:-}"; do
+  [ -n "$d" ] || continue
+  mkdir -p "$d"
+  [ -f "$d/adbkey" ] || "$ADB" keygen "$d/adbkey" >/dev/null 2>&1
+done
+[ -n "${ANDROID_USER_HOME:-}" ] && cp -f "$HOME/.android/adbkey"* "$ANDROID_USER_HOME/" 2>/dev/null
+"$ADB" kill-server >/dev/null 2>&1; "$ADB" start-server >/dev/null 2>&1
+
 log "starting emulator"
 "$EMU" -avd ChangeOS -sysdir "$ROOT/avd-image" -no-window -no-audio -no-snapshot -wipe-data \
-  -gpu swiftshader_indirect -camera-back none -camera-front none \
-  -logcat-output "$OUT/logcat.txt" > "$OUT/emulator.txt" 2>&1 &
+  -gpu swiftshader_indirect -camera-back none -camera-front none -show-kernel \
+  > "$OUT/emulator.txt" 2>&1 &
 EMU_PID=$!
 
-# grab frames as soon as adb answers, through the boot animation, until boot completes
+# wait for adb, printing every state change (offline / unauthorized / device)
 log "waiting for adb"
-timeout 600 "$ADB" wait-for-device || { log "adb never came up"; tail -50 "$OUT/emulator.txt"; exit 1; }
+last=""; up=0
+for _ in $(seq 1 150); do
+  kill -0 $EMU_PID 2>/dev/null || { log "emulator exited"; break; }
+  st=$("$ADB" devices | awk 'NR>1 && $2 {print $2; exit}')
+  [ "$st" != "$last" ] && { log "adb state: ${st:-none}"; last=$st; }
+  [ "$st" = "device" ] && { up=1; break; }
+  sleep 4
+done
+if [ $up = 0 ]; then
+  log "adb never reached 'device'. kernel/init tail:"
+  grep -aE "init:|Kernel panic|avb|dm-verity|fs_mgr|first_stage|adbd|zygote|bootanim" "$OUT/emulator.txt" | tail -60
+  tail -30 "$OUT/emulator.txt"
+  exit 1
+fi
+"$ADB" logcat -v time > "$OUT/logcat.txt" 2>&1 &
 log "adb up, capturing boot frames"
 i=0; booted=0
 for _ in $(seq 1 900); do
