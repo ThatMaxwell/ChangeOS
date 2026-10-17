@@ -1,5 +1,6 @@
 # Large or downloadable artifacts (rebuild with build/ scripts)
 gsi/
+media/*.webm
 work/
 avd-image/
 downloads/

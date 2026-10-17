@@ -39,6 +39,10 @@ APPS = {  # dir name -> (apk, extract native libs?)
 SYSTEM_PROPS = {
     "ro.build.display.id": f"ChangeOS {VERSION} (DP11.260918.006)",
     "ro.changeos.version": VERSION,
+    # Preview build: ADB on by default ("full control"). The GSI is a user build where adbd only
+    # starts if persist.sys.usb.config includes adb. Revisit ro.adb.secure before a public release.
+    "persist.sys.usb.config": "adb",
+    "ro.adb.secure": "0",
 }
 PRODUCT_PROPS = {
     "ro.product.product.brand": "ChangeOS",
