@@ -38,8 +38,13 @@ def main():
         f.seek(VBMETA_OFFSET + 120)
         f.write(struct.pack(">I", 3))
 
-    # the emulator passes these as androidboot.vbmeta.*; the old digest no longer matches
-    (DST / "VerifiedBootParams.textproto").write_text("major_version: 2\n")
+    # The emulator passes these to Android as boot params. A locked device rejects a modified system
+    # ("PUBLIC_KEY_REJECTED isn't allowed"), so boot it the way an unlocked phone runs a custom ROM.
+    (DST / "VerifiedBootParams.textproto").write_text(
+        'major_version: 2\n'
+        'param: "androidboot.verifiedbootstate=orange"\n'
+        'param: "androidboot.vbmeta.device_state=unlocked"\n'
+    )
     print("done:", DST)
 
 
