@@ -23,12 +23,17 @@
 </head>
 <body class="intro-active">
 
-<!-- Boot intro: the ChangeOS boot animation, then the camera dives through the bullseye -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Power-on intro -->
 <div class="intro" id="intro" aria-hidden="true">
   <div class="intro-stage">
     <svg id="intro-mark" viewBox="0 0 100 100"></svg>
     <div class="intro-word" id="intro-word"></div>
   </div>
+  <button class="intro-power" id="intro-power" type="button">
+    <span class="pw-dot"></span>Press to power on
+  </button>
   <button class="intro-skip" id="intro-skip" type="button">Skip intro</button>
 </div>
 
@@ -39,16 +44,23 @@
   </a>
   <nav aria-label="Sections">
     <a class="opt" href="#story">Tour</a>
-    <a class="opt" href="#glyph">Status icon</a>
+    <a class="opt" href="#screens">Screens</a>
+    <a class="opt" href="#compare">Compare</a>
     <a class="opt" href="#terminal">Terminal</a>
-    <a href="https://github.com/ThatMaxwell/ChangeOS">GitHub</a>
+    <button class="sound-btn" id="sound-btn" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w1" d="M16 9a4 4 0 0 1 0 6"/><path class="w2" d="M19 6a8 8 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg>
+      <span id="sound-label">Sound off</span>
+    </button>
+    <a class="pill" href="https://github.com/ThatMaxwell/ChangeOS">GitHub</a>
   </nav>
 </header>
 
 <main id="top">
   <section class="hero">
+    <svg class="hero-ring" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark-outline"/></svg>
     <div class="wrap hero-grid">
-      <div>
+      <div class="hero-copy">
+        <a class="chip" href="#status"><span class="chip-dot"></span>0.1 Preview, built on Android 17</a>
         <h1>Change<span class="o">OS</span></h1>
         <p class="lede">A fast, private Android that's yours to change. Nothing preinstalled that you didn't ask for.</p>
         <div class="hero-actions">
@@ -62,7 +74,17 @@
       </div>
       <div class="stage" id="hero-stage">
         <noscript><div class="fallback">Turn on JavaScript to see the 3D phone.</div></noscript>
+        <p class="stage-hint">Drag to spin</p>
       </div>
+    </div>
+  </section>
+
+  <section class="facts" aria-label="ChangeOS at a glance">
+    <div class="wrap facts-row">
+      <div><strong>2</strong><span>apps on a fresh install</span></div>
+      <div><strong>0</strong><span>Google services running</span></div>
+      <div><strong>4</strong><span>ways to unlock</span></div>
+      <div><strong>Any</strong><span>accent color you want</span></div>
     </div>
   </section>
 
@@ -88,10 +110,20 @@
         <article class="step" data-screen="loud">
           <span class="n">4 of 4</span>
           <h2>Then turn it up</h2>
-          <p>Loud mode turns your accent into the whole wallpaper. Try a different color up top and watch the phone follow.</p>
+          <p>Loud mode turns your accent into the whole wallpaper. Pick a different color up top and the phone follows.</p>
         </article>
       </div>
     </div>
+  </section>
+
+  <section class="screens" id="screens">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Every screen, one language</h2>
+        <p>The ring, the dots and the bullseye show up everywhere, from the lock screen to the quick panel.</p>
+      </div>
+    </div>
+    <div class="gallery" id="gallery" tabindex="0" aria-label="ChangeOS screens, scroll sideways"></div>
   </section>
 
   <section class="glyph" id="glyph">
@@ -127,7 +159,7 @@
 
   <section class="apps" id="apps">
     <div class="wrap">
-      <div class="apps-head">
+      <div class="sec-head">
         <h2>Two apps. That's the whole list.</h2>
         <p>A fresh install ships with an app store and a browser. Everything else is your call, installed by you.</p>
       </div>
@@ -148,6 +180,28 @@
     </div>
   </section>
 
+  <section class="compare" id="compare">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>ChangeOS next to stock Android</h2>
+        <p>Same Android underneath. Different idea of who's in charge.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col"><span class="sr-only">Feature</span></th><th scope="col">ChangeOS</th><th scope="col">Stock Android</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Preinstalled apps</th><td>2</td><td>30 or more</td></tr>
+            <tr><th scope="row">Google account required</th><td>No</td><td>For the Play Store</td></tr>
+            <tr><th scope="row">Google Play Store</th><td>Banned</td><td>Built in</td></tr>
+            <tr><th scope="row">Built-in root terminal</th><td>Yes</td><td>No</td></tr>
+            <tr><th scope="row">Accent colors</th><td>Any color</td><td>From your wallpaper</td></tr>
+            <tr><th scope="row">Scrambled PIN keypad</th><td>Yes</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section class="term-sec" id="terminal">
     <div class="wrap term-grid">
       <div>
@@ -162,13 +216,29 @@
         </div>
       </div>
       <div class="term" id="term">
-        <div class="term-top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>changeos terminal</div>
+        <div class="term-top"><span class="lights"><i></i><i></i><i></i></span><span>root@changeos: ~</span></div>
         <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
         <form class="term-line" id="term-form" autocomplete="off">
-          <label class="ps1" for="term-in">you@changeos:~$</label>
+          <label class="ps1" for="term-in">you@changeos:~#</label>
           <input id="term-in" spellcheck="false" autocapitalize="off" placeholder="type help">
         </form>
       </div>
+    </div>
+  </section>
+
+  <section class="specs" id="specs">
+    <div class="wrap specs-grid">
+      <h2>Tech specs</h2>
+      <dl>
+        <div><dt>Base</dt><dd>Android 17, API 37, generic system image</dd></div>
+        <div><dt>Architectures</dt><dd>x86_64 today, arm64 next</dd></div>
+        <div><dt>Preinstalled</dt><dd>Aurora Store 4.8.4, Firefox 158</dd></div>
+        <div><dt>Removed</dt><dd>Browser, Calendar, Clock, Gallery, Music, Search, Dreams and more</dd></div>
+        <div><dt>Themes</dt><dd>Fog, Graphite, Loud, plus any accent color</dd></div>
+        <div><dt>Unlock</dt><dd>PIN, Ring PIN, pattern, password</dd></div>
+        <div><dt>Boot</dt><dd>Custom ChangeOS animation at 30 fps</dd></div>
+        <div><dt>Source</dt><dd>Every build script is on GitHub</dd></div>
+      </dl>
     </div>
   </section>
 
@@ -187,9 +257,12 @@
 </main>
 
 <footer class="foot">
-  <div class="wrap foot-grid">
-    <a class="brand" href="#top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>ChangeOS</a>
-    <small>Built in the open on <a href="https://github.com/ThatMaxwell/ChangeOS">GitHub</a>. Not affiliated with Google.</small>
+  <div class="wrap">
+    <a class="made" href="https://github.com/ThatMaxwell/ChangeOS">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>
+      <span>Made by ThatMaxwell. <u>Follow the project.</u></span>
+    </a>
+    <small>ChangeOS is an independent project and isn't affiliated with Google. Android is a trademark of Google LLC.</small>
   </div>
 </footer>
 
@@ -198,6 +271,11 @@
     <path d="M85.65 44.99A36 36 0 1 1 55.01 14.35" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
     <g fill="currentColor"><circle cx="36.5" cy="50" r="3.6"/><circle cx="45.5" cy="50" r="3.6"/><circle cx="54.5" cy="50" r="3.6"/><circle cx="63.5" cy="50" r="3.6"/></g>
     <path fill="var(--accent)" fill-rule="evenodd" d="M75.46 10.54a14 14 0 1 1 0 28a14 14 0 1 1 0-28zM75.46 18.04a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13z"/>
+  </symbol>
+  <symbol id="mark-outline" viewBox="0 0 100 100">
+    <path class="ring-path" d="M85.65 44.99A36 36 0 1 1 55.01 14.35" fill="none" stroke="currentColor" stroke-width=".35"/>
+    <circle cx="75.46" cy="24.54" r="14" fill="none" stroke="currentColor" stroke-width=".35"/>
+    <circle cx="75.46" cy="24.54" r="6.5" fill="none" stroke="currentColor" stroke-width=".35"/>
   </symbol>
 </svg>
 

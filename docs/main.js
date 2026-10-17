@@ -1,6 +1,8 @@
 import { glyphSVG } from "./glyph.js";
 import { playIntro } from "./intro.js";
 import { mountTerminal } from "./terminal.js";
+import { sfx, sound } from "./sfx.js";
+import { paint, SW, SH } from "./screen.js";
 
 const ACCENTS = { blue: "#2f6bff", pink: "#ff2e88", orange: "#ff6a00", lime: "#b6f000", violet: "#7a3cff" };
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -23,13 +25,36 @@ function setAccent(hex) {
   document.querySelectorAll(".swatch").forEach((s) => s.setAttribute("aria-pressed", String(s.dataset.hex === hex)));
   phones.forEach((p) => p.setAccent(hex));
   renderGlyph();
+  if (typeof paintGallery === "function") paintGallery();
 }
 
 // swatches
 const sw = document.getElementById("swatches");
 sw.innerHTML = Object.entries(ACCENTS).map(([name, hex]) =>
   `<button class="swatch" type="button" data-hex="${hex}" style="background:${hex}" aria-label="${name}" aria-pressed="false"></button>`).join("");
-sw.addEventListener("click", (e) => { const b = e.target.closest(".swatch"); if (b) setAccent(b.dataset.hex); });
+sw.addEventListener("click", (e) => { const b = e.target.closest(".swatch"); if (b) { sfx.tap(); setAccent(b.dataset.hex); } });
+
+// sound toggle
+const soundBtn = document.getElementById("sound-btn");
+const syncSound = () => {
+  soundBtn.setAttribute("aria-pressed", String(sound.on));
+  document.getElementById("sound-label").textContent = sound.on ? "Sound on" : "Sound off";
+};
+soundBtn.addEventListener("click", () => { sound.set(!sound.on); syncSound(); sfx.tap(); });
+document.addEventListener("sound:change", syncSound);
+// soft ticks on every other control
+document.addEventListener("click", (e) => {
+  if (e.target.closest(".seg button, .chips button, .btn, .pill, nav a")) sfx.tick();
+});
+
+// screen gallery: flat renders of real ChangeOS screens
+const gallery = document.getElementById("gallery");
+const SHOTS = [["lock", "Lock screen"], ["home", "Fog home"], ["qs", "Quick panel"], ["loud", "Loud mode"]];
+gallery.innerHTML = SHOTS.map(([m, label]) =>
+  `<figure class="shot"><div class="device"><canvas width="${SW}" height="${SH}" data-mode="${m}"></canvas></div><figcaption>${label}</figcaption></figure>`).join("");
+const paintGallery = () => gallery.querySelectorAll("canvas").forEach((c) => paint(c.getContext("2d"), c.dataset.mode, accent));
+document.fonts.ready.then(paintGallery);
+setInterval(paintGallery, 20000);
 
 // status glyph explainer
 const gs = { bat: 82, sig: 4, wf: "c" };
@@ -69,6 +94,16 @@ async function boot3D() {
   phones.push(hero, story);
   hero.target.ry = -0.42;
 
+  // the hero phone shows off its screens on its own while it's on screen
+  const cycle = ["lock", "home", "qs", "loud"];
+  let ci = 0, heroVisible = true;
+  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(heroStage);
+  if (!reduce) setInterval(() => {
+    if (!heroVisible || document.hidden || hero.dragging) return;
+    ci = (ci + 1) % cycle.length;
+    hero.setMode(cycle[ci]);
+  }, 3800);
+
   const { gsap, ScrollTrigger } = window;
   if (!gsap || !ScrollTrigger || reduce) {
     document.querySelectorAll(".step").forEach((s) => s.classList.add("is-on"));
@@ -87,7 +122,7 @@ async function boot3D() {
       trigger: step, start: "top 60%", end: "bottom 40%",
       onToggle: (st) => {
         step.classList.toggle("is-on", st.isActive);
-        if (st.isActive) story.setMode(step.dataset.screen);
+        if (st.isActive && story.mode !== step.dataset.screen) { story.setMode(step.dataset.screen); sfx.whoosh(); }
       },
     });
   });
