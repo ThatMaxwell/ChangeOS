@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Privileged permissions for the ChangeOS launcher (installed in /system/priv-app/ChangeOSLauncher).
+     WRITE_SECURE_SETTINGS: system-wide accent color.  DELETE_PACKAGES: the Google Play ban. -->
+<permissions>
+    <privapp-permissions package="os.changeos.launcher">
+        <permission name="android.permission.WRITE_SECURE_SETTINGS" />
+        <permission name="android.permission.DELETE_PACKAGES" />
+    </privapp-permissions>
+</permissions>

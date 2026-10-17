@@ -57,6 +57,7 @@ class HomeActivity : Activity(), HomeView.Listener {
         }, RECEIVER_NOT_EXPORTED)
         reloadApps()
         PlayGuard.enforce(this)
+        handleLookExtras(intent)
     }
 
     override fun onDestroy() { unregisterReceiver(packageChanges); super.onDestroy() }
@@ -66,6 +67,18 @@ class HomeActivity : Activity(), HomeView.Listener {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         closeDrawer()  // pressing home while on home closes the drawer
+        handleLookExtras(intent)
+    }
+
+    /** `am start -n os.changeos.launcher/.HomeActivity --es theme loud --es accent FF2E88` (used by CI and the terminal) */
+    private fun handleLookExtras(intent: Intent?) {
+        val theme = intent?.getStringExtra("theme")
+        val accent = intent?.getStringExtra("accent")?.let { runCatching { Color.parseColor("#" + it.removePrefix("#")) }.getOrNull() }
+        if (theme == null && accent == null) return
+        var look = home.look
+        if (theme != null && theme in Look.THEMES) look = look.copy(theme = theme)
+        if (accent != null) look = look.copy(accent = accent)
+        applyLook(look)
     }
 
     @Deprecated("Deprecated in Java")

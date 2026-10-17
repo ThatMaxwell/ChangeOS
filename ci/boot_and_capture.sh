@@ -9,7 +9,13 @@ ADB="$ANDROID_HOME/platform-tools/adb"
 EMU="$ANDROID_HOME/emulator/emulator"
 
 log() { echo "[$(date +%H:%M:%S)] $*"; }
-shot() { "$ADB" exec-out screencap -p > "$OUT/shots/$1.png" 2>/dev/null && log "shot $1"; }
+# screenshots go through the emulator console: reliable even when the guest's screencap breaks
+shot() {
+  local before; before=$(ls "$OUT/shots"/Screenshot_*.png 2>/dev/null | wc -l)
+  emu "screenrecord screenshot $OUT/shots"; sleep 1
+  local f; f=$(ls -t "$OUT/shots"/Screenshot_*.png 2>/dev/null | head -1)
+  [ -n "$f" ] && [ "$(ls "$OUT/shots"/Screenshot_*.png | wc -l)" -gt "$before" ] && mv "$f" "$OUT/shots/$1.png" && log "shot $1"
+}
 
 # ChangeOS is a user build (ro.adb.secure=1): the emulator must hand Android our adb key to pre-authorize it
 for d in "$HOME/.android" "${ANDROID_USER_HOME:-}"; do
@@ -98,20 +104,30 @@ sleep 20  # let the launcher settle
 sleep 2
 
 # demo video while we walk around the OS
-"$ADB" shell screenrecord --time-limit 60 --bit-rate 6000000 /sdcard/demo.mp4 &
+"$ADB" shell screenrecord --time-limit 120 --bit-rate 6000000 /sdcard/demo.mp4 &
 REC=$!
 sleep 1
-"$ADB" shell input keyevent 3; sleep 3; shot 01-home
-"$ADB" shell input swipe 360 1350 360 350 350; sleep 3; shot 02-app-drawer
+HOME_CMP=os.changeos.launcher/.HomeActivity
+look() { "$ADB" shell am start -n $HOME_CMP --es theme "$1" --es accent "$2" >/dev/null 2>&1; sleep 4; }
+"$ADB" shell cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN | tr -d '\r' | tail -1 > "$OUT/default-home.txt"
+"$ADB" shell input keyevent 3; sleep 4; shot 01-home-fog
+"$ADB" shell input swipe 360 1350 360 350 300; sleep 3; shot 02-app-drawer
 "$ADB" shell input keyevent 3; sleep 2
-"$ADB" shell cmd statusbar expand-settings; sleep 3; shot 03-quick-settings
+"$ADB" shell input swipe 360 700 360 700 900; sleep 2; shot 03-theme-picker
+"$ADB" shell input keyevent 4; sleep 1
+look graphite 2F6BFF; shot 04-home-graphite
+look loud FF2E88; shot 05-home-loud-pink
+"$ADB" shell cmd statusbar expand-settings; sleep 4; shot 06-quick-settings-accent
 "$ADB" shell cmd statusbar collapse; sleep 1
-"$ADB" shell am start -a android.settings.DEVICE_INFO_SETTINGS >/dev/null; sleep 4; shot 04-about-phone
+look fog 2F6BFF
+"$ADB" shell am start -a android.settings.DEVICE_INFO_SETTINGS >/dev/null; sleep 4; shot 07-about-phone
 "$ADB" shell input keyevent 3; sleep 1
-"$ADB" shell monkey -p com.aurora.store -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8; shot 05-aurora-store
+"$ADB" shell monkey -p com.termux -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 10; shot 08-terminal
 "$ADB" shell input keyevent 3; sleep 1
-"$ADB" shell monkey -p org.mozilla.firefox -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 10; shot 06-firefox
-"$ADB" shell input keyevent 3; sleep 2; shot 07-home-again
+"$ADB" shell monkey -p com.aurora.store -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8; shot 09-aurora-store
+"$ADB" shell input keyevent 3; sleep 1
+"$ADB" shell monkey -p org.mozilla.firefox -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 10; shot 10-firefox
+"$ADB" shell input keyevent 3; sleep 3; shot 11-home-again
 wait $REC
 "$ADB" pull /sdcard/demo.mp4 "$OUT/demo.mp4" >/dev/null && log "pulled demo.mp4"
 
@@ -121,9 +137,12 @@ wait $REC
   echo "display.id : $("$ADB" shell getprop ro.build.display.id | tr -d '\r')"
   echo "model      : $("$ADB" shell getprop ro.product.model | tr -d '\r')"
   echo "changeos   : $("$ADB" shell getprop ro.changeos.version | tr -d '\r')"
+  echo "codename   : $("$ADB" shell getprop ro.changeos.codename | tr -d '\r')"
+  echo "home app   : $(cat "$OUT/default-home.txt")"
+  echo "accent cfg : $("$ADB" shell settings get secure theme_customization_overlay_packages | tr -d '\r')"
   echo "android    : $("$ADB" shell getprop ro.build.version.release | tr -d '\r') (API $("$ADB" shell getprop ro.build.version.sdk | tr -d '\r'))"
   echo; echo "== third-party / notable packages =="
-  "$ADB" shell pm list packages | tr -d '\r' | grep -E "aurora|mozilla|vending|launcher|browser|gallery|music|calendar|deskclock" | sort
+  "$ADB" shell pm list packages | tr -d '\r' | grep -E "aurora|mozilla|termux|changeos|vending|launcher|browser|gallery|music|calendar|deskclock" | sort
   echo; echo "== Google Play present? =="
   "$ADB" shell pm list packages com.android.vending | tr -d '\r' | grep -q vending && echo "YES (unexpected)" || echo "no"
 } > "$OUT/report.txt"

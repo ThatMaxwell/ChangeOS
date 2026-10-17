@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["build/**", "ci/**", "out/bootanimation.zip", ".github/workflows/boot.yml"]
+    paths: ["build/**", "ci/**", "apps/**", "out/bootanimation.zip", ".github/workflows/boot.yml"]
 
 jobs:
   boot:
@@ -43,11 +43,24 @@ jobs:
           unzip -q gsi.zip -d gsi/extracted && rm gsi.zip
           curl -sSfL -o downloads/aurora/aurora-4.8.4.apk https://f-droid.org/repo/com.aurora.store_76.apk
           curl -sSfL -o downloads/firefox/firefox-158.0-x86_64.apk https://archive.mozilla.org/pub/fenix/releases/158.0/android/fenix-158.0-android-x86_64/fenix-158.0.multi.android-x86_64.apk
+          # Termux (the OS terminal): newest F-Droid build that carries x86_64 libraries
+          mkdir -p downloads/termux
+          for vc in $(curl -sSf https://f-droid.org/api/v1/packages/com.termux | python3 -c "import sys,json;print(' '.join(str(p['versionCode']) for p in json.load(sys.stdin)['packages']))"); do
+            curl -sSfL -o downloads/termux/termux.apk "https://f-droid.org/repo/com.termux_${vc}.apk" || continue
+            if unzip -l downloads/termux/termux.apk | grep -q "lib/x86_64/"; then echo "termux versionCode $vc"; break; fi
+          done
           ls -la gsi/extracted downloads/*
+
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.11.1" }
+      - name: Build ChangeOS Launcher
+        run: gradle -p apps/launcher assembleRelease --no-daemon
 
       - name: Patch GSI into ChangeOS
         run: |
-          bash build/prep_image.sh 3400M | tail -6
+          bash build/prep_image.sh 3700M | tail -6
           python3 build/patch_gsi.py
           e2fsck -fn work/system.img | tail -2
           rm gsi/extracted/system.img

@@ -32,9 +32,16 @@ DEBLOAT = [
     "/system/app/PartnerBookmarksProvider",
 ]
 
-APPS = {  # dir name -> (apk, extract native libs?)
-    "AuroraStore": (f"{ROOT}/downloads/aurora/aurora-4.8.4.apk", False),
-    "Firefox": (f"{ROOT}/downloads/firefox/firefox-158.0-x86_64.apk", True),
+APPS = {  # dir name -> (apk, extract native libs?, privileged?)
+    "AuroraStore": (f"{ROOT}/downloads/aurora/aurora-4.8.4.apk", False, False),
+    "Firefox": (f"{ROOT}/downloads/firefox/firefox-158.0-x86_64.apk", True, False),
+    # the OS's terminal
+    "Termux": (f"{ROOT}/downloads/termux/termux.apk", True, False),
+    # Sweet Vanilla home screen, system accent engine and Play ban (built from apps/launcher)
+    "ChangeOSLauncher": (os.environ.get("LAUNCHER_APK", f"{ROOT}/apps/launcher/app/build/outputs/apk/release/app-release.apk"), False, True),
+}
+ETC_FILES = {  # file in the image -> source
+    "/system/etc/permissions/privapp-permissions-changeos.xml": f"{ROOT}/build/overlay/privapp-permissions-changeos.xml",
 }
 
 SYSTEM_PROPS = {
@@ -135,8 +142,11 @@ def main():
             print("  removed", d)
 
     print("== apps")
-    for name, (apk, extract) in APPS.items():
-        base = f"/system/app/{name}"
+    for name, (apk, extract, priv) in APPS.items():
+        if not os.path.exists(apk):
+            print(f"  skipped {name}: {apk} not found")
+            continue
+        base = f"/system/{'priv-app' if priv else 'app'}/{name}"
         if exists(base):
             debugfs(rm_tree_cmds(base))
         cmds = mkdir_cmds(base) + put_cmds(apk, f"{base}/{name}.apk")
@@ -154,6 +164,13 @@ def main():
         debugfs(cmds)
         print(f"  added {base}" + (f" (+{len(os.listdir(libdir))} libs)" if extract else ""))
 
+    print("== etc files")
+    for dst, src in ETC_FILES.items():
+        if exists(dst):
+            debugfs([f"rm {dst}"])
+        debugfs(put_cmds(src, dst))
+        print("  " + dst)
+
     print("== boot animation")
     if not exists("/system/media"):
         debugfs(mkdir_cmds("/system/media"))
@@ -165,6 +182,15 @@ def main():
     print("== props")
     edit_props("/system/build.prop", SYSTEM_PROPS, "0100600")
     edit_props("/system/product/etc/build.prop", PRODUCT_PROPS, "0100600")
+    # ro.* props are first-set-wins: also rewrite the display id wherever else the GSI defines it
+    for pf in ["/system/etc/prop.default", "/system/system_ext/etc/build.prop", "/system/product/etc/build.prop"]:
+        if not exists(pf):
+            continue
+        with tempfile.TemporaryDirectory() as td:
+            debugfs([f"dump {pf} {td}/p"], write=False)
+            if "ro.build.display.id=" in open(f"{td}/p", errors="ignore").read():
+                edit_props(pf, {"ro.build.display.id": SYSTEM_PROPS["ro.build.display.id"]}, "0100600")
+                print("  display id also set in", pf)
     print("  branded as ChangeOS", VERSION)
 
 

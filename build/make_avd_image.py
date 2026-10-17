@@ -38,6 +38,11 @@ def main():
         f.seek(VBMETA_OFFSET + 120)
         f.write(struct.pack(">I", 3))
 
+    # GLDMA breaks `screencap` with this system ("hasReadColorBufferDma" assertion)
+    feats = DST / "advancedFeatures.ini"
+    if feats.exists():
+        feats.write_text(feats.read_text().replace("GLDMA = on", "GLDMA = off"))
+
     # The emulator passes these to Android as boot params. A locked device rejects a modified system
     # ("PUBLIC_KEY_REJECTED isn't allowed"), so boot it the way an unlocked phone runs a custom ROM.
     (DST / "VerifiedBootParams.textproto").write_text(
