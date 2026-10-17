@@ -12,8 +12,8 @@ jobs:
     timeout-minutes: 75
     env:
       CHANGEOS_ROOT: ${{ github.workspace }}
-      GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_x86_64-exp-DP11.260918.006-16451184-cedd5df1.zip
-      GSI_SHA256: cedd5df1e993363eeb699a585b8c7447c6b8f0de69510e4679d37ce76c0f8945
+      GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_x86_64-exp-CP2A.260605.012-15430684-3da2ca55.zip
+      GSI_SHA256: 3da2ca5599d304c4d92fe8c72f31d035a59db57c93ce073740ed4015ee034a8e
       SYSIMG: system-images;android-37.0;google_apis;x86_64
     steps:
       - uses: actions/checkout@v4

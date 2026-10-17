@@ -16,6 +16,7 @@ ROOT = os.environ.get("CHANGEOS_ROOT", "/mnt/c/Users/CARLINHOS/Important/ChangeO
 IMG = f"{ROOT}/work/system.img"
 LABEL = "u:object_r:system_file:s0"
 VERSION = "0.1"
+CODENAME = "Sweet Vanilla"
 
 DEBLOAT = [
     "/system/product/app/Browser2",       # replaced by Firefox
@@ -37,7 +38,8 @@ APPS = {  # dir name -> (apk, extract native libs?)
 }
 
 SYSTEM_PROPS = {
-    "ro.build.display.id": f"ChangeOS {VERSION} (DP11.260918.006)",
+    "ro.build.display.id": f"ChangeOS {VERSION} {CODENAME}",
+    "ro.changeos.codename": CODENAME,
     "ro.changeos.version": VERSION,
     # Preview build: ADB on by default ("full control"). The GSI is a user build where adbd only
     # starts if persist.sys.usb.config includes adb. Revisit ro.adb.secure before a public release.
