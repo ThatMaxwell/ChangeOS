@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the ChangeOS mark (same geometry as Logo.svg) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="100" android:viewportHeight="100">
+    <path android:fillColor="#D9D9DE" android:pathData="M0,0h100v100h-100z" />
+    <group android:scaleX="0.62" android:scaleY="0.62" android:pivotX="50" android:pivotY="50">
+        <path android:strokeColor="#000000" android:strokeWidth="7" android:strokeLineCap="round"
+            android:pathData="M85.65,44.99A36,36 0,1 1,55.01 14.35" />
+        <path android:fillColor="#000000" android:pathData="M36.5,50m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0" />
+        <path android:fillColor="#000000" android:pathData="M45.5,50m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0" />
+        <path android:fillColor="#000000" android:pathData="M54.5,50m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0" />
+        <path android:fillColor="#000000" android:pathData="M63.5,50m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0" />
+        <path android:fillColor="#2F6BFF" android:fillType="evenOdd"
+            android:pathData="M75.46,10.54a14,14 0,1 1,0 28a14,14 0,1 1,0 -28zM75.46,18.04a6.5,6.5 0,1 0,0 13a6.5,6.5 0,1 0,0 -13z" />
+    </group>
+</vector>
