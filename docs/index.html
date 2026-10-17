@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChangeOS</title>
+  <meta name="description" content="ChangeOS is a fast, private Android that's yours to change. Two apps preinstalled, no Google Play, a real terminal, and colors you pick.">
+  <meta name="theme-color" content="#d9d9de">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <meta property="og:title" content="ChangeOS">
+  <meta property="og:description" content="A fast, private Android that's yours to change.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>if ("scrollRestoration" in history) history.scrollRestoration = "manual";</script>
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body class="intro-active">
+
+<!-- Boot intro: the ChangeOS boot animation, then the camera dives through the bullseye -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-stage">
+    <svg id="intro-mark" viewBox="0 0 100 100"></svg>
+    <div class="intro-word" id="intro-word"></div>
+  </div>
+  <button class="intro-skip" id="intro-skip" type="button">Skip intro</button>
+</div>
+
+<header class="bar">
+  <a class="brand" href="#top" aria-label="ChangeOS home">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>
+    ChangeOS
+  </a>
+  <nav aria-label="Sections">
+    <a class="opt" href="#story">Tour</a>
+    <a class="opt" href="#glyph">Status icon</a>
+    <a class="opt" href="#terminal">Terminal</a>
+    <a href="https://github.com/ThatMaxwell/ChangeOS">GitHub</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Change<span class="o">OS</span></h1>
+        <p class="lede">A fast, private Android that's yours to change. Nothing preinstalled that you didn't ask for.</p>
+        <div class="hero-actions">
+          <a class="btn" href="https://github.com/ThatMaxwell/ChangeOS">Get the source</a>
+          <a class="btn ghost" href="#story">Take the tour</a>
+        </div>
+        <div class="picker">
+          <span id="picker-label">Pick a color</span>
+          <div class="swatches" role="group" aria-labelledby="picker-label" id="swatches"></div>
+        </div>
+      </div>
+      <div class="stage" id="hero-stage">
+        <noscript><div class="fallback">Turn on JavaScript to see the 3D phone.</div></noscript>
+      </div>
+    </div>
+  </section>
+
+  <section class="story" id="story" aria-label="A tour of ChangeOS">
+    <div class="wrap story-grid">
+      <div class="story-stage" id="story-stage"></div>
+      <div class="steps">
+        <article class="step" data-screen="lock">
+          <span class="n">1 of 4</span>
+          <h2>Locked like you mean it</h2>
+          <p>Unlock with a PIN, a pattern, a password, or the Ring PIN, where the digits sit around a circle. Scramble the keypad so nobody learns your code from finger positions.</p>
+        </article>
+        <article class="step" data-screen="home">
+          <span class="n">2 of 4</span>
+          <h2>Fog, by default</h2>
+          <p>Soft gray wallpaper, monochrome icons and a big calendar. It's calm until you decide otherwise.</p>
+        </article>
+        <article class="step" data-screen="qs">
+          <span class="n">3 of 4</span>
+          <h2>Controls that stay out of your way</h2>
+          <p>Chunky sliders for brightness and volume, a terminal tile, and switches that cut the camera, mic and location in one tap.</p>
+        </article>
+        <article class="step" data-screen="loud">
+          <span class="n">4 of 4</span>
+          <h2>Then turn it up</h2>
+          <p>Loud mode turns your accent into the whole wallpaper. Try a different color up top and watch the phone follow.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="glyph" id="glyph">
+    <div class="wrap glyph-grid">
+      <div class="glyph-art">
+        <svg id="glyph-svg" viewBox="0 0 100 100" role="img" aria-labelledby="glyph-title">
+          <title id="glyph-title">ChangeOS status icon</title>
+        </svg>
+      </div>
+      <div>
+        <h2>Battery, signal and Wi-Fi in one mark</h2>
+        <p>The ring is your battery. The dots are your signal. The bullseye in the gap is your Wi-Fi. It's also the logo, so the status bar and the brand are the same thing.</p>
+        <div class="controls">
+          <div class="control">
+            <label for="bat">Battery</label>
+            <input id="bat" type="range" min="1" max="100" value="82">
+          </div>
+          <div class="control">
+            <fieldset><legend>Signal</legend>
+              <div class="seg" id="sig"><button type="button" data-v="0">None</button><button type="button" data-v="1">Weak</button><button type="button" data-v="2">Fair</button><button type="button" data-v="3">Good</button><button type="button" data-v="4">Full</button></div>
+            </fieldset>
+          </div>
+          <div class="control">
+            <fieldset><legend>Wi-Fi</legend>
+              <div class="seg" id="wf"><button type="button" data-v="c">Connected</button><button type="button" data-v="n">No internet</button><button type="button" data-v="o">Off</button><button type="button" data-v="h">Mobile data</button></div>
+            </fieldset>
+          </div>
+        </div>
+        <p class="readout" id="readout" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="apps" id="apps">
+    <div class="wrap">
+      <div class="apps-head">
+        <h2>Two apps. That's the whole list.</h2>
+        <p>A fresh install ships with an app store and a browser. Everything else is your call, installed by you.</p>
+      </div>
+      <div class="app-row">
+        <article class="app aurora">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-1.5 10a2 2 0 0 1-2 1.7h-11a2 2 0 0 1-2-1.7z"/><path d="M8 9a4 4 0 0 1 8 0"/></svg></div>
+          <div><h3>Aurora Store</h3><p>Every app from Google Play, downloaded anonymously. No Google account needed.</p></div>
+        </article>
+        <article class="app firefox">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18M3 12h18"/></svg></div>
+          <div><h3>Firefox</h3><p>The browser, with tracking protection on from the first page you open.</p></div>
+        </article>
+        <article class="app banned">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg></div>
+          <div><h3>Google Play</h3><p>Banned. YouTube, Drive and other Google apps still install fine through Aurora.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="term-sec" id="terminal">
+    <div class="wrap term-grid">
+      <div>
+        <h2>A real terminal, built in</h2>
+        <p class="lede">Full control over the OS, from the OS. It's powerful and it's dangerous, which is the point. Try this one.</p>
+        <div class="chips" id="chips">
+          <button type="button">neofetch</button>
+          <button type="button">pm list packages</button>
+          <button type="button">accent pink</button>
+          <button type="button">install com.android.vending</button>
+          <button type="button">reboot</button>
+        </div>
+      </div>
+      <div class="term" id="term">
+        <div class="term-top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>changeos terminal</div>
+        <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
+        <form class="term-line" id="term-form" autocomplete="off">
+          <label class="ps1" for="term-in">you@changeos:~$</label>
+          <input id="term-in" spellcheck="false" autocapitalize="off" placeholder="type help">
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="status" id="status">
+    <div class="wrap">
+      <h2>Where it stands</h2>
+      <ol class="timeline">
+        <li class="done"><span class="dot"></span><div><h3>Base picked</h3><p>Android 17 generic system image (x86_64), checksum verified.</p></div></li>
+        <li class="done"><span class="dot"></span><div><h3>Image built</h3><p>Debloated, Aurora and Firefox baked in, boot animation and branding applied, packed into an emulator disk.</p></div></li>
+        <li class="now"><span class="dot"></span><div><h3>First boot</h3><p>Booting in the cloud on GitHub Actions, since the build PC's CPU is too old for the Android 17 emulator.</p></div></li>
+        <li><span class="dot"></span><div><h3>SystemUI and launcher</h3><p>The ring status icon, Fog home screen and quick panel, as overlays and a ChangeOS launcher.</p></div></li>
+        <li><span class="dot"></span><div><h3>Real phones</h3><p>An arm64 build for phones with an unlockable bootloader.</p></div></li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <a class="brand" href="#top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>ChangeOS</a>
+    <small>Built in the open on <a href="https://github.com/ThatMaxwell/ChangeOS">GitHub</a>. Not affiliated with Google.</small>
+  </div>
+</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 100 100">
+    <path d="M85.65 44.99A36 36 0 1 1 55.01 14.35" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+    <g fill="currentColor"><circle cx="36.5" cy="50" r="3.6"/><circle cx="45.5" cy="50" r="3.6"/><circle cx="54.5" cy="50" r="3.6"/><circle cx="63.5" cy="50" r="3.6"/></g>
+    <path fill="var(--accent)" fill-rule="evenodd" d="M75.46 10.54a14 14 0 1 1 0 28a14 14 0 1 1 0-28zM75.46 18.04a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13z"/>
+  </symbol>
+</svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

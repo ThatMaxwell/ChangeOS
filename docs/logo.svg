@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" fill="none">
+  <title>ChangeOS</title>
+  <g fill="currentColor" stroke="currentColor" color="#111111">
+    <path d="M85.65 44.99A36 36 0 1 1 55.01 14.35" fill="none" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="36.5" cy="50" r="3.6" stroke="none"/>
+    <circle cx="45.5" cy="50" r="3.6" stroke="none"/>
+    <circle cx="54.5" cy="50" r="3.6" stroke="none"/>
+    <circle cx="63.5" cy="50" r="3.6" stroke="none"/>
+    <path fill-rule="evenodd" stroke="none" d="M75.46 10.54a14 14 0 1 1 0 28a14 14 0 1 1 0-28zM75.46 18.04a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13z"/>
+  </g>
+</svg>
