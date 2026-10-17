@@ -39,7 +39,7 @@ for _ in $(seq 1 60); do (exec 3<>/dev/tcp/127.0.0.1/5554) 2>/dev/null && break;
 log "console up, recording display"
 (
   for part in 1 2 3; do
-    emu "screenrecord start --time-limit 180 --size 540x1200 $OUT/screen-$part.webm"
+    emu "screenrecord start --time-limit 180 --size 720x1600 $OUT/screen-$part.webm"
     for _ in $(seq 1 9); do sleep 20; emu "screenrecord screenshot $OUT/console-shots"; done
     emu "screenrecord stop"; sleep 2
   done
@@ -102,7 +102,7 @@ sleep 2
 REC=$!
 sleep 1
 "$ADB" shell input keyevent 3; sleep 3; shot 01-home
-"$ADB" shell input swipe 540 2000 540 500 350; sleep 3; shot 02-app-drawer
+"$ADB" shell input swipe 360 1350 360 350 350; sleep 3; shot 02-app-drawer
 "$ADB" shell input keyevent 3; sleep 2
 "$ADB" shell cmd statusbar expand-settings; sleep 3; shot 03-quick-settings
 "$ADB" shell cmd statusbar collapse; sleep 1
