@@ -67,6 +67,8 @@ jobs:
           CFG=$(find "$HOME" "${ANDROID_AVD_HOME:-/nonexistent}" "${ANDROID_USER_HOME:-/nonexistent}" -path '*ChangeOS.avd/config.ini' 2>/dev/null | head -1)
           echo "AVD config: $CFG"
           test -n "$CFG"
+          # the emulator only looks in ANDROID_AVD_HOME / ~/.android/avd, so point it at wherever avdmanager wrote
+          echo "ANDROID_AVD_HOME=$(dirname "$(dirname "$CFG")")" >> "$GITHUB_ENV"
           printf 'hw.lcd.width=1080\nhw.lcd.height=2400\nhw.lcd.density=420\nhw.keyboard=yes\nhw.ramSize=4096\nhw.cpu.ncore=4\ndisk.dataPartition.size=4G\n' >> "$CFG"
           python3 - "$CFG" <<'PY'
           import sys

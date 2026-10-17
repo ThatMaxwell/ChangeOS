@@ -14,3 +14,5 @@ Thumbs.db
 desktop.ini
 __pycache__/
 !out/bootanimation.zip
+
+node_modules/
