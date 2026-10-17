@@ -20,11 +20,31 @@ done
 [ -n "${ANDROID_USER_HOME:-}" ] && cp -f "$HOME/.android/adbkey"* "$ANDROID_USER_HOME/" 2>/dev/null
 "$ADB" kill-server >/dev/null 2>&1; "$ADB" start-server >/dev/null 2>&1
 
+# emulator console (telnet :5554) works without adb: an empty auth token disables its login
+for d in "$HOME" "${ANDROID_USER_HOME:-}"; do [ -n "$d" ] && : > "$d/.emulator_console_auth_token"; done
+emu() {  # send one console command
+  exec 3<>/dev/tcp/127.0.0.1/5554 || return 1
+  sleep 0.5; printf '%s\r\nquit\r\n' "$1" >&3; timeout 5 cat <&3 >/dev/null; exec 3>&-
+}
+mkdir -p "$OUT/console-shots"
+
 log "starting emulator"
 "$EMU" -avd ChangeOS -sysdir "$ROOT/avd-image" -no-window -no-audio -no-snapshot -wipe-data \
-  -gpu swiftshader_indirect -camera-back none -camera-front none -show-kernel \
+  -gpu swiftshader_indirect -camera-back none -camera-front none -show-kernel -logcat '*:W' \
   > "$OUT/emulator.txt" 2>&1 &
 EMU_PID=$!
+
+# record the virtual display from the console (independent of adb): 3 x 3-minute clips + a screenshot every 20 s
+for _ in $(seq 1 60); do (exec 3<>/dev/tcp/127.0.0.1/5554) 2>/dev/null && break; sleep 1; done
+log "console up, recording display"
+(
+  for part in 1 2 3; do
+    emu "screenrecord start --time-limit 180 --size 540x1200 $OUT/screen-$part.webm"
+    for _ in $(seq 1 9); do sleep 20; emu "screenrecord screenshot $OUT/console-shots"; done
+    emu "screenrecord stop"; sleep 2
+  done
+) &
+REC_LOOP=$!
 
 # wait for adb, printing every state change (offline / unauthorized / device)
 log "waiting for adb"
@@ -36,10 +56,26 @@ for _ in $(seq 1 150); do
   [ "$st" = "device" ] && { up=1; break; }
   sleep 4
 done
+console_media() {
+  kill $REC_LOOP 2>/dev/null; emu "screenrecord stop"; sleep 3
+  for f in "$OUT"/screen-*.webm; do
+    [ -s "$f" ] || continue
+    ffmpeg -loglevel error -y -i "$f" -c:v libx264 -pix_fmt yuv420p -vf "scale=540:-2" "${f%.webm}.mp4"
+  done
+  ls "$OUT"/screen-*.mp4 >/dev/null 2>&1 && {
+    ls "$OUT"/screen-*.mp4 | sed "s#^#file '#; s#\$#'#" > "$OUT/list.txt"
+    ffmpeg -loglevel error -y -f concat -safe 0 -i "$OUT/list.txt" -c copy "$OUT/console-full.mp4"
+    ffmpeg -loglevel error -y -i "$OUT/console-full.mp4" -vf "fps=8,scale=270:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse" -t 60 "$OUT/console-boot.gif"
+  }
+  ls -la "$OUT" "$OUT/console-shots" | head -40
+}
+
 if [ $up = 0 ]; then
-  log "adb never reached 'device'. kernel/init tail:"
-  grep -aE "init:|Kernel panic|avb|dm-verity|fs_mgr|first_stage|adbd|zygote|bootanim" "$OUT/emulator.txt" | tail -60
-  tail -30 "$OUT/emulator.txt"
+  log "adb never reached 'device'. what's crashing (logcat via virtconsole):"
+  grep -aE "FATAL EXCEPTION|Fatal signal|Process: |beginning of crash|AndroidRuntime|E/.*Exception" "$OUT/emulator.txt" | sort | uniq -c | sort -rn | head -40
+  log "kernel/init tail:"
+  grep -aE "Kernel panic|avb|fs_mgr|first_stage|adbd|bootanim|boot_completed" "$OUT/emulator.txt" | tail -30
+  console_media
   exit 1
 fi
 "$ADB" logcat -v time > "$OUT/logcat.txt" 2>&1 &
@@ -101,6 +137,7 @@ fi
 if [ -f "$OUT/demo.mp4" ]; then
   ffmpeg -loglevel error -y -i "$OUT/demo.mp4" -vf "fps=10,scale=320:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse" -t 45 "$OUT/demo.gif"
 fi
+console_media
 ls -la "$OUT" "$OUT/shots"
 kill $EMU_PID 2>/dev/null
 exit 0

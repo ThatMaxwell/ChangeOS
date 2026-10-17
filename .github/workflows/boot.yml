@@ -95,4 +95,5 @@ jobs:
             media/*.mp4
             media/*.txt
             media/shots/*.png
+            media/console-shots/*.png
           if-no-files-found: warn
