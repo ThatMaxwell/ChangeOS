@@ -1,0 +1,15 @@
+# Large or downloadable artifacts (rebuild with build/ scripts)
+gsi/
+work/
+avd-image/
+downloads/
+tools/
+logs/
+out/*.zip
+*.img
+
+# OS / editor junk
+Thumbs.db
+.DS_Store
+desktop.ini
+__pycache__/
