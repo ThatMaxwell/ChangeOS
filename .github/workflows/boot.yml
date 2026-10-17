@@ -64,7 +64,9 @@ jobs:
           python3 build/make_avd_image.py
           rm -f work/system.img
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n ChangeOS -k "$SYSIMG" -f
-          CFG="$HOME/.android/avd/ChangeOS.avd/config.ini"
+          CFG=$(find "$HOME" "${ANDROID_AVD_HOME:-/nonexistent}" "${ANDROID_USER_HOME:-/nonexistent}" -path '*ChangeOS.avd/config.ini' 2>/dev/null | head -1)
+          echo "AVD config: $CFG"
+          test -n "$CFG"
           printf 'hw.lcd.width=1080\nhw.lcd.height=2400\nhw.lcd.density=420\nhw.keyboard=yes\nhw.ramSize=4096\nhw.cpu.ncore=4\ndisk.dataPartition.size=4G\n' >> "$CFG"
           python3 - "$CFG" <<'PY'
           import sys
