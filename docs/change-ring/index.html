@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Change Ring</title>
-<link rel="icon" href="../../docs/logo.svg" type="image/svg+xml">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<script>if (new URLSearchParams(location.search).has("embed")) document.documentElement.classList.add("embed");</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 :root{--bg:#d9d9de;--surface:#ececef;--card:#f7f7f8;--text:#111;--sub:#5a5a60;--line:#c4c4ca;--strong:#111}
@@ -31,6 +32,12 @@ input[type=range]{width:100%;accent-color:#2f6bff}
 .specs div{padding:12px 0;border-top:1px solid var(--line)}
 .specs b{display:block;font-weight:600;font-size:14px}
 .specs span{color:var(--sub);font-size:13px}
+/* embedded in the ChangeOS site: light only, no page chrome */
+.embed{--bg:#d9d9de;--surface:#ececef;--card:#f7f7f8;--text:#111;--sub:#5a5a60;--line:#c4c4ca;--strong:#111;color-scheme:light}
+.embed body{background:transparent;overflow:hidden}
+.embed main{padding:0;max-width:none}
+.embed h1,.embed .lede,.embed .specs{display:none}
+.embed #wrap{height:460px;min-height:0;background:#ececef}
 </style>
 </head>
 <body>

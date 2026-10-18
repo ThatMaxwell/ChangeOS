@@ -412,3 +412,14 @@ tbody td:nth-child(3) { color: var(--slate); }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
+
+/* ---------- Change Ring concept ---------- */
+.ring-sec { padding-block: clamp(80px, 12vw, 150px); }
+.ring-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.ring-copy .lede { margin-top: 18px; }
+.ring-feats { list-style: none; padding: 0; margin: 28px 0 32px; display: grid; gap: 16px; }
+.ring-feats li { color: var(--slate); max-width: 46ch; }
+.ring-feats b { color: var(--ink); font-weight: 600; }
+.ring-frame iframe { width: 100%; height: 790px; border: 0; border-radius: 28px; background: #ececef; display: block; }
+.ring-note { margin-top: 12px; font-size: var(--step--1); color: var(--slate); }
+@media (max-width: 900px) { .ring-grid { grid-template-columns: 1fr; } .ring-frame iframe { height: 860px; } }

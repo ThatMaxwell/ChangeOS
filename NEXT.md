@@ -4,7 +4,7 @@
 - Still to bake into the OS (now CI-only): restricted-settings allow for the ring (needs a privileged way, e.g. a boot-time helper), 3-button nav default on the emulator.
 - Remaining crash: system_server task-snapshot abort mid-tour (same emulator bug).
 - CYD: bridge `node esp32/bridge/cyd-bridge.js COM3`, quiz `node esp32/bridge/fun-questions.js 0.5 1.5` (has Skip). Answers in logs/cyd-answers.log.
-- Site: smooth Lenis scroll, niri FAQ, version 1.0. Next site section: Change Ring concept (concepts/change-ring, served on localhost:3000).
+- Site: smooth Lenis scroll, niri FAQ, version 1.0. Change Ring concept is a site section (docs/change-ring, embedded with ?embed; standalone at localhost:3000/change-ring/).
 
 # Next up (picked by the user on the CYD, 2026-10-17)
 - **Custom launcher**: the Fog home screen as a real ChangeOS launcher app (date card, monochrome icons, dock). Now built in apps/launcher (Sweet Vanilla).
