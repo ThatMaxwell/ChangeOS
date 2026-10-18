@@ -3,6 +3,7 @@ import { playIntro } from "./intro.js";
 import { mountTerminal } from "./terminal.js";
 import { sfx, sound } from "./sfx.js";
 import { paint, SW, SH } from "./screen.js";
+import { mountFaq } from "./faq.js";
 
 const ACCENTS = { blue: "#2f6bff", pink: "#ff2e88", orange: "#ff6a00", lime: "#b6f000", violet: "#7a3cff" };
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -80,6 +81,7 @@ bat.addEventListener("input", () => { gs.bat = +bat.value; renderGlyph(); });
 
 mountTerminal({ setAccent, accents: ACCENTS, getAccent: () => accent, replayIntro: () => playIntro({ force: true }) });
 setAccent(accent);
+mountFaq();
 playIntro();
 
 // 3D phones load after first paint so the intro stays smooth

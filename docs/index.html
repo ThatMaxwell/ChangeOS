@@ -47,6 +47,7 @@
     <a class="opt" href="#screens">Screens</a>
     <a class="opt" href="#compare">Compare</a>
     <a class="opt" href="#terminal">Terminal</a>
+    <a class="opt" href="#faq">FAQ</a>
     <button class="sound-btn" id="sound-btn" type="button" aria-pressed="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w1" d="M16 9a4 4 0 0 1 0 6"/><path class="w2" d="M19 6a8 8 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg>
       <span id="sound-label">Sound off</span>
@@ -224,6 +225,21 @@
         </form>
       </div>
     </div>
+  </section>
+
+  <section class="faq" id="faq" aria-label="Questions people ask">
+    <div class="wrap faq-head">
+      <h2>Questions, asked out loud</h2>
+      <div class="faq-nav">
+        <span id="faq-count" aria-live="polite"></span>
+        <button id="faq-prev" type="button" aria-label="Previous question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
+        <button id="faq-next" type="button" aria-label="Next question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="faq-view" id="faq-view" tabindex="0" aria-roledescription="carousel" aria-label="Questions. Scroll, swipe or use the arrow keys.">
+      <div class="faq-track" id="faq-track"></div>
+    </div>
+    <p class="wrap faq-hint">Scroll to move one column, like niri. It never ends, just like the questions.</p>
   </section>
 
   <section class="specs" id="specs">

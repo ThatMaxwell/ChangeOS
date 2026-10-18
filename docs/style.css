@@ -377,3 +377,33 @@ tbody td:nth-child(3) { color: var(--slate); }
 .made:hover svg { transform: rotate(-360deg); }
 .made u { text-decoration-thickness: 3px; text-underline-offset: 6px; text-decoration-color: var(--accent); }
 .foot small { display: block; margin-top: 28px; color: var(--slate); font-size: var(--step--1); }
+
+/* ---------- niri-style FAQ ---------- */
+.faq { padding-block: clamp(80px, 12vw, 150px) clamp(40px, 6vw, 80px); overflow: hidden; }
+.faq-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
+.faq-nav { display: flex; align-items: center; gap: 10px; }
+#faq-count { font-family: var(--mono); font-size: var(--step--1); color: var(--slate); min-width: 5ch; text-align: right; }
+.faq-nav button { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; display: grid; place-items: center; }
+.faq-nav button:hover { background: var(--ink); color: var(--paper); }
+.faq-nav svg { width: 20px; height: 20px; }
+.faq-view { margin-top: 44px; outline: none; cursor: ew-resize; overscroll-behavior: contain; touch-action: pan-y; }
+.faq-view:focus-visible { box-shadow: inset 0 0 0 3px var(--accent); }
+.faq-track { display: flex; gap: 18px; align-items: stretch; will-change: transform; padding-block: 12px; }
+.col {
+  flex: 0 0 min(440px, 82vw); min-height: 320px; margin: 0; position: relative;
+  background: var(--paper); border-radius: 30px; padding: 34px 32px 30px;
+  display: flex; flex-direction: column; gap: 16px;
+  opacity: .45; transform: scale(.94);
+  transition: opacity .35s ease, transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease;
+}
+.col.on { opacity: 1; transform: none; box-shadow: 0 0 0 3px var(--accent); }
+.col h3 { font-family: var(--display); font-weight: 600; font-size: var(--step-2); line-height: 1.08; }
+.col p { color: var(--slate); }
+.col-n { font-family: var(--mono); font-size: .8rem; color: var(--slate); }
+.col.chat { background: var(--graphite); }
+.col.chat .col-n { color: #8a8b92; }
+.bubbles { display: flex; flex-direction: column; gap: 8px; }
+.b { margin: 0; max-width: 82%; padding: 9px 14px; border-radius: 18px; font-size: .98rem; line-height: 1.35; }
+.b.them { align-self: flex-start; background: #303034; color: #f2f2f2; border-bottom-left-radius: 6px; }
+.b.us { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 6px; }
+.faq-hint { margin-top: 18px; font-size: var(--step--1); color: var(--slate); }
