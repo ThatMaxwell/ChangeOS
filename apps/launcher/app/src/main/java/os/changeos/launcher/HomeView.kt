@@ -77,22 +77,26 @@ class HomeView(ctx: Context, private val listener: Listener) : View(ctx) {
         }
 
         // ---- dock ----
-        val dockH = 92 * dp
+        val dockH = 116 * dp  // room for labels
         val dockR = RectF(pad - 4 * dp, h - bottomInset - dockH - 14 * dp, w - pad + 4 * dp, h - bottomInset - 14 * dp)
         Apps.roundRect(c, dockR, 34 * dp, look.dock, p)
         val slots = dock.size + 1
         val dcell = dockR.width() / slots
-        val dtile = minOf(dcell - 20 * dp, 64 * dp)
+        val dtile = minOf(dcell - 24 * dp, 56 * dp)
+        val dtop = dockR.top + 12 * dp
         dock.forEachIndexed { i, app ->
-            if (app != null) drawTile(c, app, dockR.left + dcell * i + dcell / 2, dockR.centerY() - dtile / 2, dtile, label = false)
+            if (app != null) drawTile(c, app, dockR.left + dcell * i + dcell / 2, dtop, dtile, label = true)
         }
         // app-drawer button: three dots
         val bx = dockR.left + dcell * dock.size + dcell / 2
-        val br = RectF(bx - dtile / 2, dockR.centerY() - dtile / 2, bx + dtile / 2, dockR.centerY() + dtile / 2)
+        val br = RectF(bx - dtile / 2, dtop, bx + dtile / 2, dtop + dtile)
         Apps.roundRect(c, br, 20 * dp, look.card, p)
         p.color = look.iconTint
         for (k in -1..1) c.drawCircle(bx + k * 9 * dp, br.centerY(), 3.2f * dp, p)
-        hits += br to { listener.onOpenDrawer() }
+        p.color = look.fg; p.typeface = regular; p.textSize = 12.5f * dp; p.textAlign = Paint.Align.CENTER
+        c.drawText("All apps", bx, br.bottom + 18 * dp, p)
+        p.textAlign = Paint.Align.LEFT
+        hits += RectF(br.left, br.top, br.right, br.bottom + 22 * dp) to { listener.onOpenDrawer() }
 
         // swipe hint
         p.color = look.sub; p.typeface = regular; p.textSize = 12 * dp; p.textAlign = Paint.Align.CENTER
