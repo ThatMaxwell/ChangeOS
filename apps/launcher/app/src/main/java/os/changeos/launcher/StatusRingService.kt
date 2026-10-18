@@ -122,7 +122,10 @@ class StatusRingService : AccessibilityService() {
 
     /** Light or dark glyph: follow the ChangeOS look on the home screen, night mode elsewhere. */
     private fun darkGlyph(): Boolean {
-        if (foreground == packageName || foreground == null) return Look.load(this).lightBars
+        if (foreground == packageName || foreground == null) {
+            // before first unlock the ChangeOS look (credential storage) isn't readable yet
+            return try { Look.load(this).lightBars } catch (_: IllegalStateException) { true }
+        }
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
         return !night
     }
