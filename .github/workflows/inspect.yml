@@ -1,0 +1,40 @@
+name: Inspect GSI SystemUI
+
+on:
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: "regex to filter SystemUI resources"
+        default: "battery|status_bar_.*(icon|height|width)|signal_cluster"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    env:
+      GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_x86_64-exp-CP2A.260605.012-15430684-3da2ca55.zip
+      GSI_SHA256: 3da2ca5599d304c4d92fe8c72f31d035a59db57c93ce073740ed4015ee034a8e
+    steps:
+      - name: Download GSI
+        run: |
+          sudo apt-get install -y -qq e2fsprogs >/dev/null
+          curl -sSfL -o gsi.zip "$GSI_URL"
+          echo "$GSI_SHA256  gsi.zip" | sha256sum -c -
+          unzip -q gsi.zip system.img && rm gsi.zip
+      - name: Extract SystemUI
+        run: |
+          mkdir -p out
+          debugfs -R "dump /system/system_ext/priv-app/SystemUI/SystemUI.apk out/SystemUI.apk" system.img
+          debugfs -R "ls -p /system/product/overlay" system.img | awk -F/ 'NF>5{print $6}' > out/product-overlays.txt
+          ls -la out
+      - name: Dump resources
+        run: |
+          AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2
+          "$AAPT2" dump resources out/SystemUI.apk > out/resources.txt
+          "$AAPT2" dump badging out/SystemUI.apk | head -3 > out/badging.txt
+          grep -E "^ +resource .*(${{ inputs.grep }})" out/resources.txt | head -400 > out/battery-resources.txt || true
+          grep -n "overlayable" out/resources.txt | head -20 > out/overlayable.txt || true
+          wc -l out/*.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: systemui-inspect
+          path: out/
