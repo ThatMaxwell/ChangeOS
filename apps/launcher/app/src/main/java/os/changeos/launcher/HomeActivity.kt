@@ -104,7 +104,7 @@ class HomeActivity : Activity(), HomeView.Listener {
         if (drawer != null) return
         val look = home.look
         val gv = GridView(this).apply {
-            numColumns = 4
+            numColumns = if (resources.configuration.screenWidthDp >= 400) 5 else 4
             verticalSpacing = (18 * dp).toInt()
             setPadding((14 * dp).toInt(), (64 * dp).toInt(), (14 * dp).toInt(), (40 * dp).toInt())
             clipToPadding = false

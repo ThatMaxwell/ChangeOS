@@ -65,7 +65,7 @@ class HomeView(ctx: Context, private val listener: Listener) : View(ctx) {
         hits += card to { listener.onOpenNotifications() }
 
         // ---- app grid ----
-        val cols = 4
+        val cols = if (w / dp >= 400) 5 else 4  // auto: 5 columns on wide screens
         val cell = (w - pad * 2) / cols
         val tile = minOf(cell - 18 * dp, 72 * dp)
         val gridTop = card.bottom + 34 * dp
