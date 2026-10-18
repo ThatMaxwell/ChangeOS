@@ -1,6 +1,6 @@
 name: Release ChangeOS
 
-# Push a tag to release: v1.0.0 = Sweet Vanilla, v2.0.0-pumpkin = Pumpkin Caramel edition.
+# Push a tag to release: v1.0.0 = Sweet Vanilla, v1.5.0 = Pumpkin Caramel (Halloween edition).
 # Assets: the signed launcher APK and the full ChangeOS system.img (zstd-compressed).
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
         run: |
           V="${GITHUB_REF_NAME#v}"
           case "$GITHUB_REF_NAME" in
-            *-pumpkin) ED=pumpkin; TITLE="ChangeOS 2.0 Pumpkin Caramel (Halloween edition)" ;;
+            v1.5.*) ED=pumpkin; TITLE="ChangeOS 1.5 Pumpkin Caramel (Halloween edition)" ;;
             *) ED=""; TITLE="ChangeOS $V Sweet Vanilla" ;;
           esac
           { echo "V=$V"; echo "CHANGEOS_EDITION=$ED"; echo "TITLE=$TITLE"; } >> "$GITHUB_ENV"

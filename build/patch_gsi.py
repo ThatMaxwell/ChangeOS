@@ -17,7 +17,7 @@ IMG = f"{ROOT}/work/system.img"
 LABEL = "u:object_r:system_file:s0"
 # CHANGEOS_EDITION=pumpkin builds the Halloween edition: same OS, Pumpkin theme + pumpkin-ring boot animation
 EDITION = os.environ.get("CHANGEOS_EDITION", "")
-VERSION, CODENAME = ("2.0", "Pumpkin Caramel") if EDITION == "pumpkin" else ("1.0", "Sweet Vanilla")
+VERSION, CODENAME = ("1.5", "Pumpkin Caramel") if EDITION == "pumpkin" else ("1.0", "Sweet Vanilla")
 BOOTANIM = f"{ROOT}/out/bootanimation-pumpkin.zip" if EDITION == "pumpkin" else f"{ROOT}/out/bootanimation.zip"
 
 DEBLOAT = [

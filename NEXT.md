@@ -19,7 +19,7 @@
 # Codenames
 - 1.0 **Sweet Vanilla** (current)
 - 2.0 **Salted Caramel** (picked by the user on the CYD, 2026-10-17)
-  - **Pumpkin Caramel**: the Halloween edition of 2.0, due by Oct 31. Not a separate OS: a Halloween theme (pumpkin/candy accents, dark "Graphite"-style base), a remade icon pack, and maybe a spooky boot animation variant. Build it as a theme + icon pack on top of Salted Caramel.
+  - **Pumpkin Caramel**: the Halloween edition, versioned 1.5 so it does not take Salted Caramel's 2.0 spot. Due by Oct 31. Not a separate OS: a Halloween theme (pumpkin/candy accents, dark "Graphite"-style base), a remade icon pack, and maybe a spooky boot animation variant. Built as a theme + icon pack on top of Sweet Vanilla.
 - 3.0 **Banana Split**: the BIG update (so packed it's splitting apart). Picked on the CYD. Avoid Android's names (ICS, Vanilla Ice Cream, Cinnamon Bun, etc.)
   - Ships when the user has a full free week.
 - 4.0 to 6.0: more dessert names, TBD

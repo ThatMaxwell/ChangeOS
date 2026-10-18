@@ -12,7 +12,7 @@ android {
         minSdk = 33
         targetSdk = 35
         versionCode = 2
-        versionName = "2.0 Pumpkin Caramel"
+        versionName = "1.5 Pumpkin Caramel"
     }
     // ChangeOS release key (CI decodes it from the CHANGEOS_KEYSTORE_B64 secret). Its certificate is
     // trusted for restricted settings via /system/etc/sysconfig/changeos-ecm.xml. Falls back to debug.
