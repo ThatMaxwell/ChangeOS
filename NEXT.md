@@ -29,6 +29,12 @@
 - Framing: "the Linux philosophy, not a Linux distro" (real Linux on phones = postmarketOS).
 
 # Ideas
+- Feature ideas from the "versions bragging to X" skit (numbers are jokes, features are real):
+  - **Customizable ring** (status icon / Change Ring LED styles)
+  - **Native ChangeOS code editor**
+  - **Low Battery mode** that strips the OS down even further
+  - **Custom SystemUI** (3.0 Banana Split)
+  - 7.0 X: *"i am perfect."*
 - **Declarative phone config (Nix-style)**: one file (theme, accent, apps, settings) that the user edits and the OS applies. Inspired by NixOS.
 
 # Status 2026-10-17
