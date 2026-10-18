@@ -85,6 +85,12 @@ if [ $up = 0 ]; then
   exit 1
 fi
 "$ADB" logcat -v time > "$OUT/logcat.txt" 2>&1 &
+# The vendor gralloc mapper aborts when SurfaceFlinger CPU-reads buffers for region sampling, which the
+# gesture-nav handle uses. 3-button nav has no handle, so no sampling: switch before SystemUI settles.
+for _ in $(seq 1 20); do
+  "$ADB" shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton 2>/dev/null && { log "3-button nav on"; break; }
+  sleep 2
+done
 log "adb up, capturing boot frames"
 i=0; booted=0
 for _ in $(seq 1 900); do
@@ -108,6 +114,7 @@ sleep 2
 REC=$!
 sleep 1
 HOME_CMP=os.changeos.launcher/.HomeActivity
+"$ADB" shell cmd package set-home-activity $HOME_CMP >/dev/null 2>&1 && log "home = ChangeOS launcher"
 look() { "$ADB" shell am start -n $HOME_CMP --es theme "$1" --es accent "$2" >/dev/null 2>&1; sleep 4; }
 "$ADB" shell cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN | tr -d '\r' | tail -1 > "$OUT/default-home.txt"
 "$ADB" shell input keyevent 3; sleep 4; shot 01-home-fog

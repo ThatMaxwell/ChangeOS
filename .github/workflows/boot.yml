@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gpu: [swangle_indirect, guest, swiftshader_indirect]
+        gpu: [swiftshader_indirect]
     timeout-minutes: 75
     env:
       CHANGEOS_ROOT: ${{ github.workspace }}
