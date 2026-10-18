@@ -127,10 +127,11 @@ look() { "$ADB" shell am start -n $HOME_CMP --es theme "$1" --es accent "$2" >/d
 "$ADB" shell input keyevent 3; sleep 4; shot 01-home-fog
 # zoomed status bar, to check the ChangeOS ring icon
 [ -f "$OUT/shots/01-home-fog.png" ] && ffmpeg -loglevel error -y -i "$OUT/shots/01-home-fog.png" -vf "crop=iw*0.45:ih*0.045:iw*0.55:0,scale=iw*3:-1:flags=lanczos" "$OUT/shots/01b-statusbar-zoom.png"
-"$ADB" shell settings get secure enabled_accessibility_services | tr -d '
-' > "$OUT/a11y.txt"
-"$ADB" shell settings get secure icon_blacklist | tr -d '
-' >> "$OUT/a11y.txt"
+{
+  echo "a11y services : $("$ADB" shell settings get secure enabled_accessibility_services | tr -d '\r')"
+  echo "icon_blacklist: $("$ADB" shell settings get secure icon_blacklist | tr -d '\r')"
+  echo "click sounds  : $("$ADB" shell settings get system sound_effects_enabled | tr -d '\r')"
+} > "$OUT/a11y.txt"
 "$ADB" shell input swipe 360 1350 360 350 300; sleep 3; shot 02-app-drawer
 "$ADB" shell input keyevent 3; sleep 2
 "$ADB" shell input swipe 360 700 360 700 900; sleep 2; shot 03-theme-picker
