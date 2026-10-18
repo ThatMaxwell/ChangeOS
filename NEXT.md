@@ -1,9 +1,10 @@
-# >>> RESUME HERE (2026-10-17, usage limit)
-- Sweet Vanilla 1.0 builds and boots in GitHub Actions (workflow "Build and boot ChangeOS"). Verified on the running OS: display id "ChangeOS 1.0 Sweet Vanilla" (now 1.0), ChangeOS launcher installed as a priv-app, Termux/Aurora/Firefox present, Google Play absent.
-- Blocker: SurfaceFlinger crashes ("!hasReadColorBufferDma" assertion) under the swiftshader renderer, so the screen falls back to the boot animation and the launcher is never visible. GLDMA/GLDMA2 off didn't help.
-- Run 39072808813 tests 3 GPU renderers in parallel (swangle_indirect, guest, swiftshader_indirect). Download artifacts changeos-media-<gpu>, check shots/ and report.txt (home app should be os.changeos.launcher/.HomeActivity, not FallbackHome). Keep the renderer that works.
-- CYD: bridge + quiz run as `node esp32/bridge/cyd-bridge.js COM3` and `node esp32/bridge/fun-questions.js 0.5 1.5`. Answers in logs/cyd-answers.log.
-- User picks from the CYD: launcher first, Stack clock + PIN lock screen, silent boot, monochrome icons, blue accent, JetBrains Mono, website changelog, 2.0 = Salted Caramel.
+# >>> RESUME HERE (2026-10-18)
+- **Sweet Vanilla 1.0 works in the cloud emulator**: ChangeOS launcher (Fog/Graphite/Loud, dock labels, auto columns), system accent (Material You follows ChangeOS), Termux/Aurora/Firefox, Play ban, quiet by default, and the **status chip** (battery % + ring) covering Android 17's Compose battery. Screenshots in media/sweet-vanilla/.
+- Emulator-only gralloc bug (`mapper.ranchu` "!hasReadColorBufferDma") crashes anything that CPU-reads screen buffers (region sampling, task snapshots). CI works around it: 3-button nav, Launcher3 disabled, restricted-settings appop for the ring. Real phones don't have this driver, so the OS itself keeps Launcher3 (recents).
+- Still to bake into the OS (now CI-only): restricted-settings allow for the ring (needs a privileged way, e.g. a boot-time helper), 3-button nav default on the emulator.
+- Remaining crash: system_server task-snapshot abort mid-tour (same emulator bug).
+- CYD: bridge `node esp32/bridge/cyd-bridge.js COM3`, quiz `node esp32/bridge/fun-questions.js 0.5 1.5` (has Skip). Answers in logs/cyd-answers.log.
+- Site: smooth Lenis scroll, niri FAQ, version 1.0. Next site section: Change Ring concept (concepts/change-ring, served on localhost:3000).
 
 # Next up (picked by the user on the CYD, 2026-10-17)
 - **Custom launcher**: the Fog home screen as a real ChangeOS launcher app (date card, monochrome icons, dock). Now built in apps/launcher (Sweet Vanilla).
