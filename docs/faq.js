@@ -15,6 +15,7 @@ const FAQ = [
   ] },
   { q: "OK but seriously, how is it Android?", a: "A GSI is AOSP that Google already compiled. We skip the 400 GB checkout and the six-hour build, take the finished system image, and do surgery on it. Same Android underneath, none of the extras on top." },
   { q: "Where's the Play Store?", a: "Banned. Not hidden, not disabled: if it ever gets installed, ChangeOS deletes it. Aurora Store gets you the same apps without a Google account." },
+  { q: "Why does Google Play get banned?", a: "Play comes with Google Play Services, which runs with deep system access and phones home constantly. Privacy folks have been side-eyeing it for years. Aurora does the same job, anonymously. Enjoy." },
   { q: "Why does it only come with two apps?", a: "Because you didn't ask for the other thirty. Aurora and Firefox, then it's your phone." },
   { q: "Is it fast?", a: "There's nothing on it to slow it down. That's the whole trick." },
   { q: "Why is the logo a ring?", a: "It's your battery, your signal and your Wi-Fi in one icon. It's also the logo. One ring, two jobs, zero extra pixels." },
