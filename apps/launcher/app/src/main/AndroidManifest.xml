@@ -38,6 +38,18 @@
             </intent-filter>
         </activity>
 
+        <!-- the ring status icon, drawn over the status bar -->
+        <service
+            android:name=".StatusRingService"
+            android:label="@string/ring_label"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/status_ring" />
+        </service>
+
         <!-- Google Play is banned: remove it the moment it shows up -->
         <receiver android:name=".PlayGuard" android:exported="true">
             <intent-filter>

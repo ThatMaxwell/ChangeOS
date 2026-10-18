@@ -57,6 +57,7 @@ class HomeActivity : Activity(), HomeView.Listener {
         }, RECEIVER_NOT_EXPORTED)
         reloadApps()
         PlayGuard.enforce(this)
+        StatusRingService.ensureEnabled(this)
         handleLookExtras(intent)
     }
 
@@ -184,6 +185,7 @@ class HomeActivity : Activity(), HomeView.Listener {
     }
 
     private fun styleBars(look: Look) {
+        StatusRingService.instance?.refresh()
         val light = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
         window.insetsController?.setSystemBarsAppearance(if (look.lightBars) light else 0, light)
     }

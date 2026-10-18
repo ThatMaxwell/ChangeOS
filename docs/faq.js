@@ -19,13 +19,13 @@ const FAQ = [
   { q: "Why does it only come with two apps?", a: "Because you didn't ask for the other thirty. Aurora and Firefox, then it's your phone." },
   { q: "Is it fast?", a: "There's nothing on it to slow it down. That's the whole trick." },
   { q: "Why is the logo a ring?", a: "It's your battery, your signal and your Wi-Fi in one icon. It's also the logo. One ring, two jobs, zero extra pixels." },
-  { q: "Will it run on my phone?", a: "If your bootloader unlocks, probably. If you own a Moto g05: we're so sorry. We have one too." },
+  { q: "Will it run on my phone?", a: "If your bootloader unlocks, probably. If it doesn't: sorry, your phone belongs to someone else." },
   { q: "Can I root it?", a: "There's a real terminal built in. Root is on the roadmap. Use responsibly-ish." },
   { q: "Why dessert names?", a: "Android stopped saying theirs out loud, so we picked the habit up. Sweet Vanilla now, then Salted Caramel, then Banana Split, the update so big it's splitting apart." },
   { q: "Is the Change Ring a real phone?", a: "No, it's a concept. The ring on the back would be a status light and the bullseye would be the camera. Your wallet is safe, for now." },
   { q: "Does it use systemd?", a: "It's Android. init is init. Please don't start." },
   { q: "Should I use this or postmarketOS?", a: "Want real Linux on a phone? postmarketOS, honestly. Want Android without the junk, built with a Linux user's attitude? Hi." },
-  { q: "Who makes this?", a: "One Gentoo user on a borrowed Windows PC, a CYD on the desk, a dog on emotional-support duty, a grumpy sleeping cat, and cup noodles (8/10)." },
+  { q: "Who makes this?", a: "A Gentoo user that's lazy. Compiles everything, refuses to compile Android." },
   { q: "Is it done?", a: "No. It's 0.1. It boots, it's real, it's early. “Where it stands” below says what works right now." },
 ];
 
@@ -48,50 +48,83 @@ export function mountFaq() {
   const N = FAQ.length;
   track.innerHTML = [0, 1, 2].map(() => FAQ.map((f, i) => cardHTML(f, `${i + 1} / ${N}`)).join("")).join("");
   const cards = [...track.children];
-  let idx = N;  // middle copy
 
-  function place(animate = true) {
-    const card = cards[idx];
-    const offset = card.offsetLeft + card.offsetWidth / 2 - view.clientWidth / 2;
-    track.style.transition = animate && !reduce ? "transform .45s cubic-bezier(.2,.8,.2,1)" : "none";
-    track.style.transform = `translateX(${-offset}px)`;
-    cards.forEach((c, i) => c.classList.toggle("on", i === idx));
-    count.textContent = `${(idx % N) + 1} / ${N}`;
+  // continuous position in "cards", smoothed toward a target. Wheel moves the target freely (fast flicks
+  // fly through many cards), then it settles on the nearest card. Three copies + wrap = endless.
+  let step = 0, pos = N, tgt = N, settleAt = 0, focused = -1;
+  const measure = () => { step = cards[1].offsetLeft - cards[0].offsetLeft; };
+  function wrap() {
+    if (pos < N - 0.5 || pos >= 2 * N - 0.5) {
+      const shift = pos < N - 0.5 ? N : -N;
+      pos += shift; tgt += shift;
+    }
   }
-  function go(d) {
-    idx += d;
-    sfx.tick();
-    place(true);
+  function render() {
+    const center = cards[0].offsetLeft + cards[0].offsetWidth / 2;
+    track.style.transform = `translate3d(${(view.clientWidth / 2 - center - pos * step).toFixed(2)}px,0,0)`;
+    const f = Math.round(pos);
+    if (f !== focused) {
+      if (focused >= 0) cards[focused]?.classList.remove("on");
+      cards[f]?.classList.add("on");
+      focused = f;
+      count.textContent = `${(f % N) + 1} / ${N}`;
+      sfx.tick();
+    }
   }
-  // after moving into the outer copies, jump back to the middle copy without animation
-  track.addEventListener("transitionend", () => {
-    if (idx < N || idx >= 2 * N) { idx = (idx % N) + N; place(false); }
-  });
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (now > settleAt) tgt = Math.round(tgt);  // snap once the wheel goes quiet
+    const k = reduce ? 1 : 1 - Math.pow(0.0008, dt);  // critically-damped-ish glide
+    pos += (tgt - pos) * k;
+    if (Math.abs(tgt - pos) < 0.0005) pos = tgt;
+    wrap();
+    render();
+    requestAnimationFrame(frame);
+  }
 
-  // one wheel flick = one column (niri style). Trackpads send many small events, so accumulate.
-  let acc = 0, lock = 0;
   view.addEventListener("wheel", (e) => {
     e.preventDefault();
-    const now = performance.now();
-    acc += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-    if (now < lock) return;
-    if (Math.abs(acc) > 30) { go(acc > 0 ? 1 : -1); acc = 0; lock = now + 380; }
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    const px = e.deltaMode === 1 ? d * 40 : e.deltaMode === 2 ? d * view.clientWidth : d;
+    tgt += px / (step * 0.28);  // sensitive: one notch is most of a card, a fast flick flies
+    settleAt = performance.now() + 140;
   }, { passive: false });
 
-  let sx = null;
-  view.addEventListener("pointerdown", (e) => { sx = e.clientX; });
-  view.addEventListener("pointerup", (e) => {
-    if (sx !== null && Math.abs(e.clientX - sx) > 40) go(e.clientX < sx ? 1 : -1);
-    sx = null;
+  // drag / swipe with momentum
+  let dragX = null, dragPos = 0, vel = 0, lastX = 0, lastT = 0;
+  view.addEventListener("pointerdown", (e) => {
+    dragX = e.clientX; dragPos = tgt; vel = 0; lastX = e.clientX; lastT = performance.now();
+    view.setPointerCapture(e.pointerId);
   });
+  view.addEventListener("pointermove", (e) => {
+    if (dragX === null) return;
+    const now = performance.now();
+    vel = (lastX - e.clientX) / Math.max(1, now - lastT); lastX = e.clientX; lastT = now;
+    tgt = pos = dragPos + (dragX - e.clientX) / step;
+    settleAt = Infinity;
+  });
+  const endDrag = (e) => {
+    if (dragX === null) return;
+    const moved = Math.abs(e.clientX - dragX);
+    dragX = null;
+    tgt += vel * 0.35 * (1000 / step) * 0.2;  // fling
+    settleAt = performance.now();
+    if (moved < 6) {  // a click on a side card focuses it
+      const hit = cards.indexOf(e.target.closest(".col"));
+      if (hit >= 0 && hit !== Math.round(pos)) tgt = hit;
+    }
+  };
+  view.addEventListener("pointerup", endDrag);
+  view.addEventListener("pointercancel", endDrag);
   view.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight" || e.key === "l") { go(1); e.preventDefault(); }
-    if (e.key === "ArrowLeft" || e.key === "h") { go(-1); e.preventDefault(); }
+    if (e.key === "ArrowRight" || e.key === "l") { tgt = Math.round(tgt) + 1; settleAt = 0; e.preventDefault(); }
+    if (e.key === "ArrowLeft" || e.key === "h") { tgt = Math.round(tgt) - 1; settleAt = 0; e.preventDefault(); }
   });
-  document.getElementById("faq-prev").onclick = () => go(-1);
-  document.getElementById("faq-next").onclick = () => go(1);
-  cards.forEach((c, i) => c.addEventListener("click", () => { if (i !== idx) go(i - idx); }));
-  addEventListener("resize", () => place(false));
-  document.fonts.ready.then(() => place(false));
-  place(false);
+  document.getElementById("faq-prev").onclick = () => { tgt = Math.round(tgt) - 1; settleAt = 0; };
+  document.getElementById("faq-next").onclick = () => { tgt = Math.round(tgt) + 1; settleAt = 0; };
+  addEventListener("resize", measure);
+  document.fonts.ready.then(measure);
+  measure();
+  requestAnimationFrame(frame);
 }

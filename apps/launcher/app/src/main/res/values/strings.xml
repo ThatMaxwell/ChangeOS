@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ring_label">ChangeOS status ring</string>
+    <string name="ring_description">Shows battery, signal and Wi-Fi as the ChangeOS ring in the status bar. It doesn\'t read anything on your screen.</string>
+</resources>

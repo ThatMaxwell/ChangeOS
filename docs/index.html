@@ -236,10 +236,10 @@
         <button id="faq-next" type="button" aria-label="Next question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
       </div>
     </div>
-    <div class="faq-view" id="faq-view" tabindex="0" aria-roledescription="carousel" aria-label="Questions. Scroll, swipe or use the arrow keys.">
+    <div class="faq-view" id="faq-view" data-lenis-prevent tabindex="0" aria-roledescription="carousel" aria-label="Questions. Scroll, swipe or use the arrow keys.">
       <div class="faq-track" id="faq-track"></div>
     </div>
-    <p class="wrap faq-hint">Scroll to move one column, like niri. It never ends, just like the questions.</p>
+    <p class="wrap faq-hint">Scroll like niri. Flick hard and it flies. It never ends, just like the questions.</p>
   </section>
 
   <section class="specs" id="specs">
@@ -295,6 +295,7 @@
   </symbol>
 </svg>
 
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script type="module" src="main.js"></script>

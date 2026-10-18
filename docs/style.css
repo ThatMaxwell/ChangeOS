@@ -407,3 +407,8 @@ tbody td:nth-child(3) { color: var(--slate); }
 .b.them { align-self: flex-start; background: #303034; color: #f2f2f2; border-bottom-left-radius: 6px; }
 .b.us { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 6px; }
 .faq-hint { margin-top: 18px; font-size: var(--step--1); color: var(--slate); }
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }

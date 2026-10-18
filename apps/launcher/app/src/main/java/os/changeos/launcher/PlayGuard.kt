@@ -12,6 +12,7 @@ class PlayGuard : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pkg = intent.data?.schemeSpecificPart
         if (pkg == null || pkg in BANNED) enforce(context)
+        if (pkg == null) StatusRingService.ensureEnabled(context)  // boot: make sure the ring is on
     }
 
     companion object {

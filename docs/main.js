@@ -82,6 +82,24 @@ bat.addEventListener("input", () => { gs.bat = +bat.value; renderGlyph(); });
 mountTerminal({ setAccent, accents: ACCENTS, getAccent: () => accent, replayIntro: () => playIntro({ force: true }) });
 setAccent(accent);
 mountFaq();
+
+// buttery page scrolling (Lenis), driven by GSAP's ticker so ScrollTrigger stays in sync
+let lenis = null;
+if (!reduce && window.Lenis) {
+  lenis = new window.Lenis({ lerp: 0.09, wheelMultiplier: 1.15, touchMultiplier: 1.4, anchors: true });
+  if (window.gsap) {
+    window.gsap.ticker.add((t) => lenis.raf(t * 1000));
+    window.gsap.ticker.lagSmoothing(0);
+  } else {
+    const loop = (t) => { lenis.raf(t); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+  lenis.on("scroll", () => window.ScrollTrigger?.update());
+  if (document.body.classList.contains("intro-active")) {
+    lenis.stop();
+    addEventListener("intro:done", () => { lenis.scrollTo(0, { immediate: true }); lenis.start(); }, { once: true });
+  }
+}
 playIntro();
 
 // 3D phones load after first paint so the intro stays smooth
