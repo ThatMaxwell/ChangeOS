@@ -1,0 +1,29 @@
+ChangeOS
+Copyright 2026 The ChangeOS Authors
+
+ChangeOS's own code (the launcher, build scripts, CI, website and firmware in this
+repository) is licensed under the Apache License, Version 2.0. See LICENSE.
+
+The ChangeOS system image also contains the following third-party software, each under
+its own license. Source code for each is available at the link given.
+
+Android Open Source Project (Android 17 GSI, aosp_x86_64 CP2A.260605.012)
+  Mostly Apache License 2.0; some components are under GPL-2.0, LGPL, BSD, MIT and
+  other open source licenses. See https://source.android.com/docs/setup/about/licenses
+  Source: https://source.android.com
+
+Firefox for Android (Fenix) 158.0, Mozilla
+  Mozilla Public License 2.0. Firefox is a trademark of the Mozilla Foundation;
+  ChangeOS ships the official, unmodified build.
+  Source: https://github.com/mozilla-firefox/firefox
+
+Aurora Store 4.8.4
+  GNU General Public License v3.0. Unmodified F-Droid build.
+  Source: https://gitlab.com/AuroraOSS/AuroraStore
+
+Termux
+  GNU General Public License v3.0. Unmodified F-Droid build.
+  Source: https://github.com/termux/termux-app
+
+Android is a trademark of Google LLC. ChangeOS is not affiliated with or endorsed by
+Google, Mozilla, Aurora OSS or Termux.
