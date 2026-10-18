@@ -1,0 +1,99 @@
+name: Build ChangeOS arm64 (real phones)
+
+# Builds the arm64 system image from main and attaches it to an existing release.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the image to (e.g. v1.5.0)"
+        required: true
+        default: "v1.5.0"
+
+permissions:
+  contents: write
+
+jobs:
+  arm64:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CHANGEOS_ROOT: ${{ github.workspace }}
+      CHANGEOS_ARCH: arm64
+      GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_arm64-exp-CP3A.260905.010-16176746-4a869a69.zip
+      GSI_SHA256: 4a869a6959a50fee15ff871ce378853ced4485f2aa456eb64dbdbf7a2c0408aa
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Edition from tag
+        run: |
+          V="${TAG#v}"
+          case "$TAG" in v1.5.*) ED=pumpkin ;; *) ED="" ;; esac
+          { echo "V=$V"; echo "CHANGEOS_EDITION=$ED"; } >> "$GITHUB_ENV"
+
+      - name: Free disk space and tools
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL /usr/local/lib/node_modules
+          sudo apt-get update -qq && sudo apt-get install -y -qq e2fsprogs zstd >/dev/null
+          df -h /
+
+      - name: Download GSI and apps (arm64)
+        run: |
+          mkdir -p gsi/extracted downloads/aurora downloads/firefox downloads/termux
+          curl -sSfL -o gsi.zip "$GSI_URL"
+          echo "$GSI_SHA256  gsi.zip" | sha256sum -c -
+          unzip -q gsi.zip -d gsi/extracted && rm gsi.zip
+          ls -la gsi/extracted
+          curl -sSfL -o downloads/aurora/aurora-4.8.4.apk https://f-droid.org/repo/com.aurora.store_76.apk
+          curl -sSfL -o downloads/firefox/firefox-158.0-arm64.apk https://archive.mozilla.org/pub/fenix/releases/158.0/android/fenix-158.0-android-arm64-v8a/fenix-158.0.multi.android-arm64-v8a.apk
+          for vc in $(curl -sSf https://f-droid.org/api/v1/packages/com.termux | python3 -c "import sys,json;print(' '.join(str(p['versionCode']) for p in json.load(sys.stdin)['packages']))"); do
+            curl -sSfL -o downloads/termux/termux.apk "https://f-droid.org/repo/com.termux_${vc}.apk" || continue
+            if unzip -l downloads/termux/termux.apk | grep -q "lib/arm64-v8a/"; then echo "termux versionCode $vc"; break; fi
+          done
+
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.11.1" }
+
+      - name: Build the signed ChangeOS Launcher
+        env:
+          CHANGEOS_KEYSTORE_B64: ${{ secrets.CHANGEOS_KEYSTORE_B64 }}
+          CHANGEOS_KEYSTORE_PASSWORD: ${{ secrets.CHANGEOS_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$CHANGEOS_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/changeos.jks"
+          export CHANGEOS_KEYSTORE="$RUNNER_TEMP/changeos.jks"
+          gradle -p apps/launcher assembleRelease --no-daemon
+          rm -f "$RUNNER_TEMP/changeos.jks"
+
+      - name: Build the arm64 system image
+        run: |
+          bash build/prep_image.sh 3700M | tail -6
+          python3 build/patch_gsi.py
+          rm gsi/extracted/system.img
+          # shrink to the smallest size that fits, so it flashes onto phones with small system partitions
+          e2fsck -fy work/system.img >/dev/null || true
+          resize2fs -M work/system.img
+          BLOCKS=$(dumpe2fs -h work/system.img 2>/dev/null | awk -F: '/^Block count/{gsub(/ /,"",$2);print $2}')
+          BSIZE=$(dumpe2fs -h work/system.img 2>/dev/null | awk -F: '/^Block size/{gsub(/ /,"",$2);print $2}')
+          truncate -s $((BLOCKS * BSIZE)) work/system.img
+          e2fsck -fn work/system.img | tail -2
+          ls -la work/system.img
+
+      - name: Check the image
+        run: |
+          for p in /system/app/Firefox/lib/arm64 /system/app/Termux/lib/arm64 /system/priv-app/ChangeOSLauncher /system/app/AuroraStore; do
+            echo "== $p"; debugfs -R "ls $p" work/system.img 2>/dev/null | head -3
+          done
+          debugfs -R "cat /system/build.prop" work/system.img 2>/dev/null | grep -E "ro.build.display.id|ro.changeos|ro.adb.secure|persist.sys.usb.config|ro.product.cpu.abi" || true
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          OUT="ChangeOS-$V-arm64-system.img.zst"
+          zstd -19 -T0 --long=27 -q work/system.img -o "$OUT"
+          ls -la "$OUT"
+          test "$(stat -c %s "$OUT")" -lt 2147483648
+          sha256sum "$OUT"
+          gh release upload "$TAG" "$OUT" --clobber

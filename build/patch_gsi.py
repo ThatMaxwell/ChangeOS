@@ -17,6 +17,9 @@ IMG = f"{ROOT}/work/system.img"
 LABEL = "u:object_r:system_file:s0"
 # CHANGEOS_EDITION=pumpkin builds the Halloween edition: same OS, Pumpkin theme + pumpkin-ring boot animation
 EDITION = os.environ.get("CHANGEOS_EDITION", "")
+# CHANGEOS_ARCH=arm64 builds the real-phone image (default x86_64, the emulator image)
+ARCH = os.environ.get("CHANGEOS_ARCH", "x86_64")
+APK_ABI, SYS_ABI = ("arm64-v8a", "arm64") if ARCH == "arm64" else ("x86_64", "x86_64")
 VERSION, CODENAME = ("1.5", "Pumpkin Caramel") if EDITION == "pumpkin" else ("1.0", "Sweet Vanilla")
 BOOTANIM = f"{ROOT}/out/bootanimation-pumpkin.zip" if EDITION == "pumpkin" else f"{ROOT}/out/bootanimation.zip"
 
@@ -36,7 +39,7 @@ DEBLOAT = [
 
 APPS = {  # dir name -> (apk, extract native libs?, privileged?)
     "AuroraStore": (f"{ROOT}/downloads/aurora/aurora-4.8.4.apk", False, False),
-    "Firefox": (f"{ROOT}/downloads/firefox/firefox-158.0-x86_64.apk", True, False),
+    "Firefox": (f"{ROOT}/downloads/firefox/firefox-158.0-{ARCH}.apk", True, False),
     # the OS's terminal
     "Termux": (f"{ROOT}/downloads/termux/termux.apk", True, False),
     # Sweet Vanilla home screen, system accent engine and Play ban (built from apps/launcher)
@@ -53,11 +56,14 @@ SYSTEM_PROPS = {
     "ro.build.display.id": f"ChangeOS {VERSION} {CODENAME}",
     "ro.changeos.codename": CODENAME,
     "ro.changeos.version": VERSION,
-    # Preview build: ADB on by default ("full control"). The GSI is a user build where adbd only
-    # starts if persist.sys.usb.config includes adb. Revisit ro.adb.secure before a public release.
-    "persist.sys.usb.config": "adb",
-    "ro.adb.secure": "0",
 }
+if ARCH == "x86_64":
+    # Emulator build: ADB on and unauthenticated, so CI can drive it. The GSI is a user build where
+    # adbd only starts if persist.sys.usb.config includes adb.
+    SYSTEM_PROPS.update({"persist.sys.usb.config": "adb", "ro.adb.secure": "0"})
+else:
+    # Phone build: ADB stays off until the user enables it, and every computer must be authorized.
+    SYSTEM_PROPS.update({"ro.adb.secure": "1"})
 PRODUCT_PROPS = {
     "ro.product.product.brand": "ChangeOS",
     "ro.product.product.manufacturer": "ChangeOS",
@@ -159,13 +165,13 @@ def main():
             libdir = f"{work}/{name}-lib"
             os.makedirs(libdir)
             with zipfile.ZipFile(apk) as z:
-                libs = [n for n in z.namelist() if n.startswith("lib/x86_64/") and n.endswith(".so")]
+                libs = [n for n in z.namelist() if n.startswith(f"lib/{APK_ABI}/") and n.endswith(".so")]
                 for n in libs:
                     with open(f"{libdir}/{os.path.basename(n)}", "wb") as out:
                         out.write(z.read(n))
-            cmds += mkdir_cmds(f"{base}/lib") + mkdir_cmds(f"{base}/lib/x86_64")
+            cmds += mkdir_cmds(f"{base}/lib") + mkdir_cmds(f"{base}/lib/{SYS_ABI}")
             for so in sorted(os.listdir(libdir)):
-                cmds += put_cmds(f"{libdir}/{so}", f"{base}/lib/x86_64/{so}")
+                cmds += put_cmds(f"{libdir}/{so}", f"{base}/lib/{SYS_ABI}/{so}")
         debugfs(cmds)
         print(f"  added {base}" + (f" (+{len(os.listdir(libdir))} libs)" if extract else ""))
 
