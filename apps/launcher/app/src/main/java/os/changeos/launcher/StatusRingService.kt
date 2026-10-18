@@ -65,17 +65,18 @@ class StatusRingService : AccessibilityService() {
         val dp = resources.displayMetrics.density
         val sbId = resources.getIdentifier("status_bar_height", "dimen", "android")
         val barH = if (sbId > 0) resources.getDimensionPixelSize(sbId) else (24 * dp).toInt()
-        val size = (18 * dp).toInt()
+        // a solid chip wide enough to sit over Android 17's battery pill (drawn in Compose, can't be hidden)
+        val chipW = (78 * dp).toInt()
         val v = RingView(this)
         val lp = WindowManager.LayoutParams(
-            size + (8 * dp).toInt(), barH,
+            chipW, barH,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.END
-            x = (10 * dp).toInt(); y = 0
+            x = (6 * dp).toInt(); y = 0
             layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
             title = "ChangeOS status ring"
         }
@@ -134,14 +135,29 @@ class StatusRingService : AccessibilityService() {
 
     fun refresh() { view?.invalidate() }
 
+    /** The ChangeOS status chip: battery % + ring, on a solid pill that covers the stock battery icon. */
     inner class RingView(ctx: Context) : View(ctx) {
+        private val chip = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        private val text = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            textAlign = android.graphics.Paint.Align.RIGHT
+        }
         override fun onDraw(c: Canvas) {
             val dark = darkGlyph()
+            val dp = resources.displayMetrics.density
             val fg = if (dark) Color.BLACK else Color.WHITE
             val mute = if (dark) 0x55000000 else 0x66FFFFFF
-            val bg = if (dark) 0xFFF2F2F2.toInt() else 0xFF111111.toInt()
-            val s = minOf(width, height).toFloat() * 0.78f
-            RingGlyph.draw(c, (width - s) / 2f, (height - s) / 2f, s, battery, signal, wifi, fg, mute, bg)
+            val pill = if (dark) 0xFFF2F2F4.toInt() else 0xFF1D1D20.toInt()
+            val h = minOf(height.toFloat(), 24 * dp)
+            val top = (height - h) / 2f
+            chip.color = pill
+            c.drawRoundRect(0f, top, width.toFloat(), top + h, h / 2f, h / 2f, chip)
+            val s = h * 0.78f
+            val gx = width - h / 2f - s / 2f - 2 * dp
+            RingGlyph.draw(c, gx, top + (h - s) / 2f, s, battery, signal, wifi, fg, mute, pill)
+            text.color = if (battery <= 15) 0xFFFF3B30.toInt() else fg
+            text.textSize = h * 0.54f
+            c.drawText("$battery%", gx - 4 * dp, top + h / 2f + text.textSize * 0.36f, text)
         }
     }
 
