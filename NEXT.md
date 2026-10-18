@@ -1,7 +1,9 @@
 # >>> RESUME HERE (2026-10-18)
 - **Sweet Vanilla 1.0 works in the cloud emulator**: ChangeOS launcher (Fog/Graphite/Loud, dock labels, auto columns), system accent (Material You follows ChangeOS), Termux/Aurora/Firefox, Play ban, quiet by default, and the **status chip** (battery % + ring) covering Android 17's Compose battery. Screenshots in media/sweet-vanilla/.
 - Emulator-only gralloc bug (`mapper.ranchu` "!hasReadColorBufferDma") crashes anything that CPU-reads screen buffers (region sampling, task snapshots). CI works around it: 3-button nav, Launcher3 disabled, restricted-settings appop for the ring. Real phones don't have this driver, so the OS itself keeps Launcher3 (recents).
-- Still to bake into the OS (now CI-only): restricted-settings allow for the ring (needs a privileged way, e.g. a boot-time helper), 3-button nav default on the emulator.
+- DONE: ring trust is baked into the OS (ChangeOS release key + /system/etc/sysconfig/changeos-ecm.xml). Key backup: Documents/ChangeOS-key-backup and tools/keys (git-ignored); GitHub secrets CHANGEOS_KEYSTORE_B64 / _PASSWORD.
+- NEXT (user's order): 2) release Sweet Vanilla 1.0 on GitHub Releases + changelog page on the site, 3) Pumpkin Caramel (due Oct 31), 4) arm64 real-phone build.
+- Emulator-only, CI keeps working around it: 3-button nav, Launcher3 disabled.
 - Remaining crash: system_server task-snapshot abort mid-tour (same emulator bug).
 - CYD: bridge `node esp32/bridge/cyd-bridge.js COM3`, quiz `node esp32/bridge/fun-questions.js 0.5 1.5` (has Skip). Answers in logs/cyd-answers.log.
 - Site: smooth Lenis scroll, niri FAQ, version 1.0. Change Ring concept is a site section (docs/change-ring, embedded with ?embed; standalone at localhost:3000/change-ring/).
