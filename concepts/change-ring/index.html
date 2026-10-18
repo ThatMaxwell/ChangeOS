@@ -101,15 +101,15 @@ function ringIcon(x,y,s,fg,acc){const k=s/100;cx.save();cx.translate(x-50*k,y-50
  cx.beginPath();cx.arc(75.46,24.54,14,0,7);cx.fill();cx.fillStyle=acc;cx.beginPath();cx.arc(75.46,24.54,6.5,0,7);cx.fill();cx.restore()}
 function paint(){cx.clearRect(0,0,SW,SH);rr(0,0,SW,SH,60);cx.save();cx.clip();
  if(!S.screen){cx.fillStyle='#000';cx.fillRect(0,0,SW,SH);cx.restore();tex.needsUpdate=true;return}
- const a=S.accent,d=new Date();cx.fillStyle='#d9d9de';cx.fillRect(0,0,SW,SH);
- cx.fillStyle='#000';cx.font='600 26px system-ui,sans-serif';cx.fillText(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,40,56);ringIcon(SW-58,48,40,'#000',a);
- rr(28,100,SW-56,220,40);cx.fillStyle='#f7f7f8';cx.fill();cx.fillStyle='#000';cx.font='700 46px system-ui,sans-serif';
+ const a=S.accent,d=new Date();cx.fillStyle='#1d1d20';cx.fillRect(0,0,SW,SH);
+ cx.fillStyle='#f2f2f2';cx.font='600 26px system-ui,sans-serif';cx.fillText(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,40,56);ringIcon(SW-58,48,40,'#f2f2f2',a);
+ rr(28,100,SW-56,220,40);cx.fillStyle='#2b2b2f';cx.fill();cx.fillStyle='#f2f2f2';cx.font='700 46px system-ui,sans-serif';
  cx.fillText(d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase(),60,180);cx.font='700 92px system-ui,sans-serif';cx.fillText(String(d.getDate()),54,285);
- ringIcon(400,210,150,'#000',a);
- for(let i=0;i<8;i++){const x=82+(i%4)*125,y=450+Math.floor(i/4)*165;rr(x-44,y-44,88,88,26);cx.fillStyle='#f7f7f8';cx.fill();
+ ringIcon(400,210,150,'#f2f2f2',a);
+ for(let i=0;i<8;i++){const x=82+(i%4)*125,y=450+Math.floor(i/4)*165;rr(x-44,y-44,88,88,26);cx.fillStyle='#2b2b2f';cx.fill();
   cx.strokeStyle=a;cx.lineWidth=5;cx.beginPath();cx.arc(x,y,18,0,7);cx.stroke()}
- rr(24,SH-170,SW-48,128,46);cx.fillStyle='#c9c9cf';cx.fill();
- for(let i=0;i<4;i++){const x=90+i*120,y=SH-106;rr(x-38,y-38,76,76,22);cx.fillStyle='#f7f7f8';cx.fill();cx.fillStyle=a;cx.beginPath();cx.arc(x,y,9,0,7);cx.fill()}
+ rr(24,SH-170,SW-48,128,46);cx.fillStyle='#2b2b2f';cx.fill();
+ for(let i=0;i<4;i++){const x=90+i*120,y=SH-106;rr(x-38,y-38,76,76,22);cx.fillStyle='#3a3a3f';cx.fill();cx.fillStyle=a;cx.beginPath();cx.arc(x,y,9,0,7);cx.fill()}
  cx.restore();tex.needsUpdate=true}
 
 // back: the ChangeOS mark as hardware, mirrored so it reads correctly from behind
