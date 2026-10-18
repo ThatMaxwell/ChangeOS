@@ -87,6 +87,9 @@ fi
 "$ADB" logcat -v time > "$OUT/logcat.txt" 2>&1 &
 # The vendor gralloc mapper aborts when SurfaceFlinger CPU-reads buffers for region sampling, which the
 # gesture-nav handle uses. 3-button nav has no handle, so no sampling: switch before SystemUI settles.
+# Emulator-only: stock Launcher3 (recents + phone taskbar) also region-samples, which hits the same gralloc bug.
+# Real devices don't have this bug, so only the test run disables it.
+for _ in $(seq 1 20); do "$ADB" shell pm disable-user --user 0 com.android.launcher3 >/dev/null 2>&1 && { log "launcher3 off (emulator only)"; break; }; sleep 2; done
 for _ in $(seq 1 20); do
   "$ADB" shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.threebutton 2>/dev/null && { log "3-button nav on"; break; }
   sleep 2
