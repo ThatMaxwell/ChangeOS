@@ -18,7 +18,10 @@
   - **Pumpkin Caramel**: the Halloween edition of 0.2, due by Oct 31. Not a separate OS: a Halloween theme (pumpkin/candy accents, dark "Graphite"-style base), a remade icon pack, and maybe a spooky boot animation variant. Build it as a theme + icon pack on top of Salted Caramel.
 - 0.3 **Banana Split**: the BIG update (so packed it's splitting apart). Picked on the CYD. Avoid Android's names (ICS, Vanilla Ice Cream, Cinnamon Bun, etc.)
   - Ships when the user has a full free week.
-- **ChangeOS X (7.0)**: the huge jump (7 is the user's favorite number). Not "the best", but a massive leap. Far off.
+- **ChangeOS X (7.0)**: the huge jump (7 is the user's favorite number). Far off.
+  - X is the **stable, recommended release** (LTS-style): the one that never breaks, has enough features, and is the safe version to hop back to if something goes wrong.
+  - Dessert versions are where new features land. After X, versions go back to dessert names, so X stays the only one of its kind.
+  - "i run sweet vanilla!" / "i run salted caramel!" / "i run banana spli-" / "i run Change X."
 
 # Website
 - Add a changelog page (picked on the CYD). First entry: Sweet Vanilla 0.1.
