@@ -82,8 +82,10 @@ class StatusRingService : AccessibilityService() {
         try { wm.addView(v, lp); view = v } catch (e: Exception) { Log.e(TAG, "can't add ring overlay", e); return }
 
         registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        getSystemService(ConnectivityManager::class.java).registerDefaultNetworkCallback(netCallback)
-        if (!getSystemService(WifiManager::class.java).isWifiEnabled) wifi = RingGlyph.Wifi.OFF
+        try {
+            getSystemService(ConnectivityManager::class.java).registerDefaultNetworkCallback(netCallback)
+            if (!getSystemService(WifiManager::class.java).isWifiEnabled) wifi = RingGlyph.Wifi.OFF
+        } catch (e: SecurityException) { Log.w(TAG, "no network updates", e) }
         try {
             val tm = getSystemService(TelephonyManager::class.java)
             signal = tm.signalStrength?.level ?: 0

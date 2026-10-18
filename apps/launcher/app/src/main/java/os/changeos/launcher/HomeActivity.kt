@@ -48,6 +48,8 @@ class HomeActivity : Activity(), HomeView.Listener {
         if (!prefs.getBoolean("setup_done", false)) {
             // first boot of ChangeOS: Fog wallpaper + system accent
             applyLook(home.look)
+            // Sweet Vanilla is quiet: no touch/click sounds by default
+            try { android.provider.Settings.System.putInt(contentResolver, android.provider.Settings.System.SOUND_EFFECTS_ENABLED, 0) } catch (_: Exception) {}
             prefs.edit().putBoolean("setup_done", true).apply()
         }
         styleBars(home.look)
