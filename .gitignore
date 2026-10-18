@@ -15,6 +15,7 @@ Thumbs.db
 desktop.ini
 __pycache__/
 !out/bootanimation.zip
+!out/bootanimation-pumpkin.zip
 
 node_modules/
 

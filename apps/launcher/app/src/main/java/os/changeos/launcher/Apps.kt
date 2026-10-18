@@ -84,6 +84,27 @@ object Apps {
 
     fun clearCache() = iconCache.clear()
 
+    /** A pumpkin filling [r]: ribbed body in [color] with a stem. Returns the top of the body. */
+    fun pumpkin(c: Canvas, r: RectF, color: Int, p: Paint): Float {
+        val s = r.width()
+        val top = r.top + s * 0.13f
+        p.style = Paint.Style.FILL
+        // stem first, so the body overlaps its base
+        p.color = 0xFF6B8E23.toInt()
+        c.save(); c.rotate(12f, r.centerX(), top)
+        c.drawRoundRect(RectF(r.centerX() - s * 0.055f, r.top, r.centerX() + s * 0.055f, top + s * 0.08f), s * 0.04f, s * 0.04f, p)
+        c.restore()
+        // outer ribs a shade darker, middle rib on top
+        val dark = android.graphics.Color.rgb(
+            (android.graphics.Color.red(color) * 0.82f).toInt(), (android.graphics.Color.green(color) * 0.82f).toInt(), (android.graphics.Color.blue(color) * 0.82f).toInt())
+        p.color = dark
+        c.drawOval(RectF(r.left, top, r.left + s * 0.62f, r.bottom), p)
+        c.drawOval(RectF(r.right - s * 0.62f, top, r.right, r.bottom), p)
+        p.color = color
+        c.drawOval(RectF(r.centerX() - s * 0.3f, top, r.centerX() + s * 0.3f, r.bottom), p)
+        return top
+    }
+
     fun roundRect(c: Canvas, r: RectF, radius: Float, color: Int, p: Paint) {
         p.color = color; p.style = Paint.Style.FILL; c.drawRoundRect(r, radius, radius, p)
     }

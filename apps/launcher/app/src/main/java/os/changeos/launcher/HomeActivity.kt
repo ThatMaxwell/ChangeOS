@@ -22,6 +22,7 @@ import android.widget.BaseAdapter
 import android.widget.FrameLayout
 import android.widget.GridView
 import android.widget.ImageView
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 
@@ -159,10 +160,13 @@ class HomeActivity : Activity(), HomeView.Listener {
                 text = t.replaceFirstChar { it.uppercase() }; textSize = 15f; gravity = Gravity.CENTER
                 setPadding((16 * dp).toInt(), (10 * dp).toInt(), (16 * dp).toInt(), (10 * dp).toInt())
                 background = GradientDrawable().apply { cornerRadius = 99 * dp; setColor(0xFFECECEF.toInt()) }
-                setOnClickListener { look = look.copy(theme = t); applyLook(look) }
+                setOnClickListener {
+                    look = if (t == "pumpkin") look.copy(theme = t, accent = Look.PUMPKIN) else look.copy(theme = t)
+                    applyLook(look)
+                }
             }, LinearLayout.LayoutParams(-2, -2).apply { rightMargin = (8 * dp).toInt() })
         }
-        box.addView(themes)
+        box.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(themes) })
         box.addView(label("Accent, used across the whole system"))
         val swatches = LinearLayout(this)
         Look.ACCENTS.forEach { a ->

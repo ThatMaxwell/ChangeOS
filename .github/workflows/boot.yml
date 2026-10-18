@@ -2,9 +2,13 @@ name: Build and boot ChangeOS
 
 on:
   workflow_dispatch:
+    inputs:
+      edition:
+        description: "Edition (empty = Sweet Vanilla, pumpkin = Pumpkin Caramel)"
+        default: ""
   push:
     branches: [main]
-    paths: ["build/**", "ci/**", "apps/**", "out/bootanimation.zip", ".github/workflows/boot.yml"]
+    paths: ["build/**", "ci/**", "apps/**", "out/bootanimation*.zip", ".github/workflows/boot.yml"]
 
 jobs:
   boot:
@@ -16,6 +20,7 @@ jobs:
     timeout-minutes: 75
     env:
       CHANGEOS_ROOT: ${{ github.workspace }}
+      CHANGEOS_EDITION: ${{ inputs.edition }}
       GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_x86_64-exp-CP2A.260605.012-15430684-3da2ca55.zip
       GSI_SHA256: 3da2ca5599d304c4d92fe8c72f31d035a59db57c93ce073740ed4015ee034a8e
       SYSIMG: system-images;android-37.0;google_apis;x86_64
@@ -118,7 +123,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: changeos-media-${{ matrix.gpu }}
+          name: changeos-media-${{ inputs.edition || 'vanilla' }}-${{ matrix.gpu }}
           path: |
             media/*.gif
             media/*.mp4

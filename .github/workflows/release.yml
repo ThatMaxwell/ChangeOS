@@ -32,7 +32,11 @@ jobs:
           mkdir -p dist
           V="${GITHUB_REF_NAME#v}"
           cp apps/launcher/app/build/outputs/apk/release/app-release.apk "dist/ChangeOSLauncher-$V.apk"
-          cp out/bootanimation.zip dist/bootanimation.zip
+          # tags ending in -pumpkin release the Pumpkin Caramel edition
+          case "$GITHUB_REF_NAME" in
+            *-pumpkin) cp out/bootanimation-pumpkin.zip dist/bootanimation.zip; cp build/overlay/edition-pumpkin dist/changeos-edition ;;
+            *) cp out/bootanimation.zip dist/bootanimation.zip ;;
+          esac
           cp build/overlay/privapp-permissions-changeos.xml build/overlay/changeos-ecm.xml dist/
           cp Logo.svg dist/ChangeOS-logo.svg
           (cd dist && sha256sum * > SHA256SUMS.txt)
@@ -42,6 +46,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/* \
-            --title "ChangeOS ${GITHUB_REF_NAME#v} Sweet Vanilla" \
+          case "$GITHUB_REF_NAME" in
+            *-pumpkin) TITLE="ChangeOS 2.0 Pumpkin Caramel (Halloween edition)" ;;
+            *) TITLE="ChangeOS ${GITHUB_REF_NAME#v} Sweet Vanilla" ;;
+          esac
+          gh release create "$GITHUB_REF_NAME" dist/* --title "$TITLE" \
             --notes-file release-notes/${GITHUB_REF_NAME}.md

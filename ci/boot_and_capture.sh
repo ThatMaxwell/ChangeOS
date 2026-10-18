@@ -136,6 +136,7 @@ look() { "$ADB" shell am start -n $HOME_CMP --es theme "$1" --es accent "$2" >/d
 "$ADB" shell input keyevent 4; sleep 1
 look graphite 2F6BFF; shot 04-home-graphite
 look loud FF2E88; shot 05-home-loud-pink
+look pumpkin FF7A1A; shot 05b-home-pumpkin
 "$ADB" shell cmd statusbar expand-settings; sleep 4; shot 06-quick-settings-accent
 "$ADB" shell cmd statusbar collapse; sleep 1
 look fog 2F6BFF

@@ -106,10 +106,18 @@ class HomeView(ctx: Context, private val listener: Listener) : View(ctx) {
 
     private fun drawTile(c: Canvas, app: App, cx: Float, top: Float, size: Float, label: Boolean) {
         val r = RectF(cx - size / 2, top, cx + size / 2, top + size)
-        Apps.roundRect(c, r, size * 0.3f, look.card, p)
-        val iconPx = (size * 0.62f).toInt()
-        val bmp = Apps.monoIcon(app, iconPx, look.iconTint)
-        c.drawBitmap(bmp, cx - iconPx / 2f, top + (size - iconPx) / 2f, p)
+        if (look.pumpkin) {
+            // Pumpkin Caramel icon pack: the tile is a pumpkin, the icon is carved into it
+            val bodyTop = Apps.pumpkin(c, r, look.accent, p)
+            val iconPx = (size * 0.48f).toInt()
+            val bmp = Apps.monoIcon(app, iconPx, 0xFF2A1405.toInt())
+            c.drawBitmap(bmp, cx - iconPx / 2f, (bodyTop + r.bottom) / 2f - iconPx / 2f, p)
+        } else {
+            Apps.roundRect(c, r, size * 0.3f, look.card, p)
+            val iconPx = (size * 0.62f).toInt()
+            val bmp = Apps.monoIcon(app, iconPx, look.iconTint)
+            c.drawBitmap(bmp, cx - iconPx / 2f, top + (size - iconPx) / 2f, p)
+        }
         if (label) {
             p.color = look.fg; p.typeface = regular; p.textSize = 12.5f * dp; p.textAlign = Paint.Align.CENTER
             var t = app.label

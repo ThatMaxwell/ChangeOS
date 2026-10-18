@@ -15,8 +15,10 @@ import zipfile
 ROOT = os.environ.get("CHANGEOS_ROOT", "/mnt/c/Users/CARLINHOS/Important/ChangeOS")
 IMG = f"{ROOT}/work/system.img"
 LABEL = "u:object_r:system_file:s0"
-VERSION = "1.0"
-CODENAME = "Sweet Vanilla"
+# CHANGEOS_EDITION=pumpkin builds the Halloween edition: same OS, Pumpkin theme + pumpkin-ring boot animation
+EDITION = os.environ.get("CHANGEOS_EDITION", "")
+VERSION, CODENAME = ("2.0", "Pumpkin Caramel") if EDITION == "pumpkin" else ("1.0", "Sweet Vanilla")
+BOOTANIM = f"{ROOT}/out/bootanimation-pumpkin.zip" if EDITION == "pumpkin" else f"{ROOT}/out/bootanimation.zip"
 
 DEBLOAT = [
     "/system/product/app/Browser2",       # replaced by Firefox
@@ -44,6 +46,8 @@ ETC_FILES = {  # file in the image -> source
     "/system/etc/permissions/privapp-permissions-changeos.xml": f"{ROOT}/build/overlay/privapp-permissions-changeos.xml",
     "/system/etc/sysconfig/changeos-ecm.xml": f"{ROOT}/build/overlay/changeos-ecm.xml",
 }
+if EDITION:  # the launcher reads this for its default theme
+    ETC_FILES["/system/etc/changeos-edition"] = f"{ROOT}/build/overlay/edition-{EDITION}"
 
 SYSTEM_PROPS = {
     "ro.build.display.id": f"ChangeOS {VERSION} {CODENAME}",
@@ -180,8 +184,8 @@ def main():
         debugfs(mkdir_cmds("/system/media"))
     if exists("/system/media/bootanimation.zip"):
         debugfs(["rm /system/media/bootanimation.zip"])
-    debugfs(put_cmds(f"{ROOT}/out/bootanimation.zip", "/system/media/bootanimation.zip"))
-    print("  /system/media/bootanimation.zip")
+    debugfs(put_cmds(BOOTANIM, "/system/media/bootanimation.zip"))
+    print("  /system/media/bootanimation.zip <-", os.path.basename(BOOTANIM))
 
     print("== props")
     edit_props("/system/build.prop", SYSTEM_PROPS, "0100600")

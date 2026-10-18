@@ -1,7 +1,7 @@
 """Render ChangeOS bootanimation.zip from the Logo.svg geometry.
 
 Usage: python build/make_bootanim.py [theme] [accent]
-  theme:  fog | graphite        (default fog)
+  theme:  fog | graphite | pumpkin   (default fog; pumpkin writes out/bootanimation-pumpkin.zip)
   accent: hex color             (default #2F6BFF)
 Output: out/bootanimation.zip and out/bootanimation-preview.gif
 
@@ -24,6 +24,9 @@ OUT = ROOT / "out"
 THEMES = {
     "fog": {"bg": "#d9d9de", "fg": "#111111", "mute": "#b4b4ba"},
     "graphite": {"bg": "#111113", "fg": "#f2f2f2", "mute": "#3a3a3e"},
+    # Pumpkin Caramel: the ring is a pumpkin (orange, with a stem), caramel dots and wordmark
+    "pumpkin": {"bg": "#1c1009", "fg": "#ffe6c2", "mute": "#3a2414", "ring": "#ff7a1a", "stem": "#6b8e23",
+                "accent": "#ffe6c2"},
 }
 
 W, H, FPS = 720, 900, 30
@@ -63,6 +66,10 @@ def ease_out_back(x, s=1.70158):
 def rgb(hexcolor):
     h = hexcolor.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def ring(theme):
+    return theme.get("ring", theme["fg"])
 
 
 def load_font(size, bold):
@@ -112,10 +119,21 @@ class Canvas:
         for a in (a0, a1):  # round caps
             self.circle(CX + R * math.cos(math.radians(a)), CY + R * math.sin(math.radians(a)), STROKE / 2, color)
 
+    def stem(self, k=1.0):
+        """Pumpkin theme only: a curled stem sitting on top of the ring, grown by k (0..1+)."""
+        if "stem" not in self.t or k <= 0:
+            return
+        x0, y0 = self.p(CX, CY - R - STROKE / 2 + 1)
+        w, h = 6 * UNIT * SS, 11 * UNIT * SS * k
+        layer = Image.new("RGBA", self.img.size, (0, 0, 0, 0))
+        ImageDraw.Draw(layer).rounded_rectangle((x0 - w / 2, y0 - h, x0 + w / 2, y0 + 2 * UNIT * SS),
+                                                radius=w / 2, fill=rgb(self.t["stem"]) + (255,))
+        self.img.alpha_composite(layer.rotate(-14, center=(x0, y0), resample=Image.BICUBIC))
+
     def wordmark(self, accent, t):
         """'Change' bold + 'OS' in accent, rising letter by letter. t is seconds since the reveal started."""
         bold, light = load_font(64 * SS, True), load_font(64 * SS, True)
-        pieces = [(ch, self.t["fg"], bold) for ch in "Change"] + [(ch, accent, light) for ch in "OS"]
+        pieces = [(ch, self.t["fg"], bold) for ch in "Change"] + [(ch, self.t.get("ring", accent), light) for ch in "OS"]
         total = sum(self.d.textlength(ch, font=f) for ch, _, f in pieces)
         x = (W * SS - total) / 2
         for i, (ch, color, font) in enumerate(pieces):
@@ -140,7 +158,8 @@ def intro(theme, accent, n=40):
         c = Canvas(theme)
         k = ease_in_out(t / 0.9)
         spin = -360 * (1 - ease_out_back(t / 1.0, 1.1))
-        c.arc(A0, A0 + (A1 - A0) * k, theme["fg"], rot=spin)
+        c.arc(A0, A0 + (A1 - A0) * k, ring(theme), rot=spin)
+        c.stem(ease_out_back((t - 0.8) / 0.35, 2.0))
         for j, x in enumerate(DOTS):
             c.circle(x, CY, DOT_R * ease_out_back((t - 0.55 - j * 0.07) / 0.3, 2.2), theme["fg"])
         frames.append(c.done())
@@ -154,7 +173,8 @@ def loading(theme, accent, n=45):
     for i in range(n):
         ph = i / n
         c = Canvas(theme)
-        c.arc(A0, A1, theme["fg"])
+        c.arc(A0, A1, ring(theme))
+        c.stem()
         # comet: a 70-degree accent segment travelling along the visible arc and wrapping around
         head = A0 + (span + 70) * ph
         s, e = max(A0, head - 70), min(A1, head)
@@ -175,12 +195,13 @@ def finale(theme, accent, n=54):
         t = i / FPS
         c = Canvas(theme)
         pulse = 1 + 0.04 * math.sin(math.pi * clamp((t - 0.3) / 0.35))
-        c.arc(A0, A1, theme["fg"])
+        c.arc(A0, A1, ring(theme))
+        c.stem()
         for x in DOTS:
             c.circle(x, CY, DOT_R, theme["fg"])
         drop = ease_out_back(t / 0.45, 2.0)
         y = by - 40 * (1 - clamp(t / 0.3))
-        c.circle(bx, y, BULL_R * drop * pulse, theme["fg"])
+        c.circle(bx, y, BULL_R * drop * pulse, ring(theme))
         c.circle(bx, y, HOLE_R * drop * pulse, accent if t > 0.3 else theme["bg"])
         w = clamp((t - 0.3) / 0.6)
         c.ring_outline(bx, by, BULL_R + 30 * ease_out(w), 1.4, accent, (1 - w) * 0.9)
@@ -197,13 +218,14 @@ def png_bytes(img):
 
 def main():
     name = sys.argv[1] if len(sys.argv) > 1 else "fog"
-    accent = sys.argv[2] if len(sys.argv) > 2 else "#2F6BFF"
     theme = THEMES[name]
+    accent = sys.argv[2] if len(sys.argv) > 2 else theme.get("accent", "#2F6BFF")
     parts = [("part0", "c 1 0", intro(theme, accent)),
              ("part1", "p 0 0", loading(theme, accent)),
              ("part2", "c 1 0", finale(theme, accent))]
     OUT.mkdir(exist_ok=True)
-    zpath = OUT / "bootanimation.zip"
+    suffix = "-pumpkin" if name == "pumpkin" else ""
+    zpath = OUT / f"bootanimation{suffix}.zip"
     desc = f"{W} {H} {FPS}\n" + "".join(f"{kind} {p} {theme['bg']}\n" for p, kind, _ in parts)
     # Android requires an uncompressed (stored) zip
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_STORED) as z:
@@ -214,7 +236,7 @@ def main():
     hold = [parts[2][2][-1]] * 40
     preview = parts[0][2] + parts[1][2] * 2 + parts[2][2] + hold
     small = [f.resize((W // 2, H // 2), Image.LANCZOS) for f in preview]
-    small[0].save(OUT / "bootanimation-preview.gif", save_all=True, append_images=small[1:],
+    small[0].save(OUT / f"bootanimation{suffix}-preview.gif", save_all=True, append_images=small[1:],
                   duration=1000 // FPS, loop=0, optimize=False, disposal=1)
     print(f"wrote {zpath} ({zpath.stat().st_size // 1024} KB), theme={name}, accent={accent}")
     print(desc)
