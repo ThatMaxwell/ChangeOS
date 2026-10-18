@@ -1,0 +1,47 @@
+name: Release ChangeOS
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.11.1" }
+
+      - name: Build the signed ChangeOS Launcher
+        env:
+          CHANGEOS_KEYSTORE_B64: ${{ secrets.CHANGEOS_KEYSTORE_B64 }}
+          CHANGEOS_KEYSTORE_PASSWORD: ${{ secrets.CHANGEOS_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$CHANGEOS_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/changeos.jks"
+          export CHANGEOS_KEYSTORE="$RUNNER_TEMP/changeos.jks"
+          gradle -p apps/launcher assembleRelease --no-daemon
+          rm -f "$RUNNER_TEMP/changeos.jks"
+
+      - name: Collect assets
+        run: |
+          mkdir -p dist
+          V="${GITHUB_REF_NAME#v}"
+          cp apps/launcher/app/build/outputs/apk/release/app-release.apk "dist/ChangeOSLauncher-$V.apk"
+          cp out/bootanimation.zip dist/bootanimation.zip
+          cp build/overlay/privapp-permissions-changeos.xml build/overlay/changeos-ecm.xml dist/
+          cp Logo.svg dist/ChangeOS-logo.svg
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          ls -la dist
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "ChangeOS ${GITHUB_REF_NAME#v} Sweet Vanilla" \
+            --notes-file release-notes/${GITHUB_REF_NAME}.md
