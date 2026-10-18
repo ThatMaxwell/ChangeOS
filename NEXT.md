@@ -1,9 +1,9 @@
 # >>> RESUME HERE (2026-10-17, usage limit)
-- Sweet Vanilla 0.1 builds and boots in GitHub Actions (workflow "Build and boot ChangeOS"). Verified on the running OS: display id "ChangeOS 0.1 Sweet Vanilla", ChangeOS launcher installed as a priv-app, Termux/Aurora/Firefox present, Google Play absent.
+- Sweet Vanilla 1.0 builds and boots in GitHub Actions (workflow "Build and boot ChangeOS"). Verified on the running OS: display id "ChangeOS 1.0 Sweet Vanilla" (now 1.0), ChangeOS launcher installed as a priv-app, Termux/Aurora/Firefox present, Google Play absent.
 - Blocker: SurfaceFlinger crashes ("!hasReadColorBufferDma" assertion) under the swiftshader renderer, so the screen falls back to the boot animation and the launcher is never visible. GLDMA/GLDMA2 off didn't help.
 - Run 39072808813 tests 3 GPU renderers in parallel (swangle_indirect, guest, swiftshader_indirect). Download artifacts changeos-media-<gpu>, check shots/ and report.txt (home app should be os.changeos.launcher/.HomeActivity, not FallbackHome). Keep the renderer that works.
 - CYD: bridge + quiz run as `node esp32/bridge/cyd-bridge.js COM3` and `node esp32/bridge/fun-questions.js 0.5 1.5`. Answers in logs/cyd-answers.log.
-- User picks from the CYD: launcher first, Stack clock + PIN lock screen, silent boot, monochrome icons, blue accent, JetBrains Mono, website changelog, 0.2 = Salted Caramel.
+- User picks from the CYD: launcher first, Stack clock + PIN lock screen, silent boot, monochrome icons, blue accent, JetBrains Mono, website changelog, 2.0 = Salted Caramel.
 
 # Next up (picked by the user on the CYD, 2026-10-17)
 - **Custom launcher**: the Fog home screen as a real ChangeOS launcher app (date card, monochrome icons, dock). Now built in apps/launcher (Sweet Vanilla).
@@ -13,19 +13,19 @@
 - Needs: arm64 GSI + arm64 Firefox/Termux in CI, vbmeta with verification disabled, fastboot flashing guide.
 
 # Codenames
-- 0.1 **Sweet Vanilla** (current)
-- 0.2 **Salted Caramel** (picked by the user on the CYD, 2026-10-17)
-  - **Pumpkin Caramel**: the Halloween edition of 0.2, due by Oct 31. Not a separate OS: a Halloween theme (pumpkin/candy accents, dark "Graphite"-style base), a remade icon pack, and maybe a spooky boot animation variant. Build it as a theme + icon pack on top of Salted Caramel.
-- 0.3 **Banana Split**: the BIG update (so packed it's splitting apart). Picked on the CYD. Avoid Android's names (ICS, Vanilla Ice Cream, Cinnamon Bun, etc.)
+- 1.0 **Sweet Vanilla** (current)
+- 2.0 **Salted Caramel** (picked by the user on the CYD, 2026-10-17)
+  - **Pumpkin Caramel**: the Halloween edition of 2.0, due by Oct 31. Not a separate OS: a Halloween theme (pumpkin/candy accents, dark "Graphite"-style base), a remade icon pack, and maybe a spooky boot animation variant. Build it as a theme + icon pack on top of Salted Caramel.
+- 3.0 **Banana Split**: the BIG update (so packed it's splitting apart). Picked on the CYD. Avoid Android's names (ICS, Vanilla Ice Cream, Cinnamon Bun, etc.)
   - Ships when the user has a full free week.
-- 0.4 to 0.6: more dessert names, TBD
-- 0.7 **X**: the seventh release, the huge jump (7 is the user's favorite number). Far off.
+- 4.0 to 6.0: more dessert names, TBD
+- 7.0 **X**: the seventh release, the huge jump (7 is the user's favorite number). Far off.
   - X is the **stable, recommended release** (LTS-style): the one that never breaks, has enough features, and is the safe version to hop back to if something goes wrong.
   - Dessert versions are where new features land. After X, versions go back to dessert names, so X stays the only one of its kind.
   - "i run sweet vanilla!" / "i run salted caramel!" / "i run banana spli-" / "i run Change X."
 
 # Website
-- Add a changelog page (picked on the CYD). First entry: Sweet Vanilla 0.1.
+- Add a changelog page (picked on the CYD). First entry: Sweet Vanilla 1.0.
 - Framing: "the Linux philosophy, not a Linux distro" (real Linux on phones = postmarketOS).
 
 # Ideas

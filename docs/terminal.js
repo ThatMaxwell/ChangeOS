@@ -56,7 +56,7 @@ export function mountTerminal({ setAccent, accents, replayIntro, getAccent }) {
     const info = [
       "<span class=acc>you</span>@<span class=acc>changeos</span>",
       "<span class=dim>------------</span>",
-      k("OS", "ChangeOS 0.1 Preview x86_64"),
+      k("OS", "ChangeOS 1.0 Sweet Vanilla x86_64"),
       k("Base", "Android 17 (API 37)"),
       k("Kernel", "Linux, Android GKI"),
       k("Uptime", uptime()),
@@ -139,7 +139,7 @@ export function mountTerminal({ setAccent, accents, replayIntro, getAccent }) {
   });
   document.getElementById("term").addEventListener("click", (e) => { if (!e.target.closest("button")) input.focus({ preventScroll: true }); });
 
-  print("<span class=dim>ChangeOS 0.1 Preview (tty1)</span>");
+  print("<span class=dim>ChangeOS 1.0 Sweet Vanilla (tty1)</span>");
   print(neofetch());
   print("<span class=dim>type</span> <span class=acc>help</span> <span class=dim>for commands.</span>");
 }

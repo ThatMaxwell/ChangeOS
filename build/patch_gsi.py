@@ -15,7 +15,7 @@ import zipfile
 ROOT = os.environ.get("CHANGEOS_ROOT", "/mnt/c/Users/CARLINHOS/Important/ChangeOS")
 IMG = f"{ROOT}/work/system.img"
 LABEL = "u:object_r:system_file:s0"
-VERSION = "0.1"
+VERSION = "1.0"
 CODENAME = "Sweet Vanilla"
 
 DEBLOAT = [

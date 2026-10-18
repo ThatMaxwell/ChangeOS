@@ -26,7 +26,7 @@ const FAQ = [
   { q: "Does it use systemd?", a: "It's Android. init is init. Please don't start." },
   { q: "Should I use this or postmarketOS?", a: "Want real Linux on a phone? postmarketOS, honestly. Want Android without the junk, built with a Linux user's attitude? Hi." },
   { q: "Who makes this?", a: "A Gentoo user that's lazy. Compiles everything, refuses to compile Android." },
-  { q: "Is it done?", a: "No. It's 0.1. It boots, it's real, it's early. “Where it stands” below says what works right now." },
+  { q: "Is it done?", a: "No. It's 1.0, the very first version. It boots, it's real, it's early. “Where it stands” below says what works right now." },
 ];
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
