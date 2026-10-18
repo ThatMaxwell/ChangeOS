@@ -60,7 +60,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.11.1" }
       - name: Build ChangeOS Launcher
-        run: gradle -p apps/launcher assembleRelease --no-daemon
+        env:
+          CHANGEOS_KEYSTORE_B64: ${{ secrets.CHANGEOS_KEYSTORE_B64 }}
+          CHANGEOS_KEYSTORE_PASSWORD: ${{ secrets.CHANGEOS_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$CHANGEOS_KEYSTORE_B64" ]; then
+            echo "$CHANGEOS_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/changeos.jks"
+            export CHANGEOS_KEYSTORE="$RUNNER_TEMP/changeos.jks"
+          fi
+          gradle -p apps/launcher assembleRelease --no-daemon
+          "$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner" verify --print-certs apps/launcher/app/build/outputs/apk/release/app-release.apk | grep -i "SHA-256"
+          rm -f "$RUNNER_TEMP/changeos.jks"
 
       - name: Patch GSI into ChangeOS
         run: |

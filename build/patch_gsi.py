@@ -42,6 +42,7 @@ APPS = {  # dir name -> (apk, extract native libs?, privileged?)
 }
 ETC_FILES = {  # file in the image -> source
     "/system/etc/permissions/privapp-permissions-changeos.xml": f"{ROOT}/build/overlay/privapp-permissions-changeos.xml",
+    "/system/etc/sysconfig/changeos-ecm.xml": f"{ROOT}/build/overlay/changeos-ecm.xml",
 }
 
 SYSTEM_PROPS = {
@@ -166,6 +167,9 @@ def main():
 
     print("== etc files")
     for dst, src in ETC_FILES.items():
+        parent = dst.rsplit("/", 1)[0]
+        if not exists(parent):
+            debugfs(mkdir_cmds(parent))
         if exists(dst):
             debugfs([f"rm {dst}"])
         debugfs(put_cmds(src, dst))

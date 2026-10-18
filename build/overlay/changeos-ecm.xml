@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Installed as /system/etc/sysconfig/changeos-ecm.xml.
+     Marks the ChangeOS launcher (signed with the ChangeOS release key) as trusted for Enhanced
+     Confirmation Mode / restricted settings, so its status ring accessibility service may run. -->
+<config>
+    <enhanced-confirmation-trusted-package
+        package="os.changeos.launcher"
+        sha256-cert-digest="2F:03:29:23:10:B0:2B:83:FE:0E:7B:6C:67:66:1B:09:14:9A:A6:9B:FA:98:37:D1:15:10:6C:2E:BD:B0:8D:F5" />
+</config>

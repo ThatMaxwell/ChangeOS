@@ -118,13 +118,8 @@ REC=$!
 sleep 1
 HOME_CMP=os.changeos.launcher/.HomeActivity
 "$ADB" shell cmd package set-home-activity $HOME_CMP >/dev/null 2>&1 && log "home = ChangeOS launcher"
-# Android 17 blocks accessibility services from apps it doesn't treat as trusted ("restricted settings").
-# Allow it for the ChangeOS launcher so the ring status icon can start, then restart accessibility.
-"$ADB" shell appops set os.changeos.launcher ACCESS_RESTRICTED_SETTINGS allow && log "ring: restricted settings allowed"
-SVC=os.changeos.launcher/os.changeos.launcher.StatusRingService
-"$ADB" shell settings put secure enabled_accessibility_services "" ; sleep 1
-"$ADB" shell settings put secure enabled_accessibility_services $SVC
-"$ADB" shell settings put secure accessibility_enabled 1; sleep 3
+# The ring is trusted through /system/etc/sysconfig/changeos-ecm.xml now: no test-only grant here.
+sleep 5
 look() { "$ADB" shell am start -n $HOME_CMP --es theme "$1" --es accent "$2" >/dev/null 2>&1; sleep 4; }
 "$ADB" shell cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN | tr -d '\r' | tail -1 > "$OUT/default-home.txt"
 "$ADB" shell input keyevent 3; sleep 4; shot 01-home-fog
