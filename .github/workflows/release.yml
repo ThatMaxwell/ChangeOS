@@ -1,5 +1,7 @@
 name: Release ChangeOS
 
+# Push a tag to release: v1.0.0 = Sweet Vanilla, v2.0.0-pumpkin = Pumpkin Caramel edition.
+# Assets: the signed launcher APK and the full ChangeOS system.img (zstd-compressed).
 on:
   push:
     tags: ["v*"]
@@ -10,8 +12,42 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CHANGEOS_ROOT: ${{ github.workspace }}
+      GSI_URL: https://dl.google.com/developers/android/cinnamonbun/images/gsi/aosp_x86_64-exp-CP2A.260605.012-15430684-3da2ca55.zip
+      GSI_SHA256: 3da2ca5599d304c4d92fe8c72f31d035a59db57c93ce073740ed4015ee034a8e
     steps:
       - uses: actions/checkout@v4
+
+      - name: Edition from tag
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          case "$GITHUB_REF_NAME" in
+            *-pumpkin) ED=pumpkin; TITLE="ChangeOS 2.0 Pumpkin Caramel (Halloween edition)" ;;
+            *) ED=""; TITLE="ChangeOS $V Sweet Vanilla" ;;
+          esac
+          { echo "V=$V"; echo "CHANGEOS_EDITION=$ED"; echo "TITLE=$TITLE"; } >> "$GITHUB_ENV"
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL /usr/local/lib/node_modules
+          sudo apt-get update -qq && sudo apt-get install -y -qq e2fsprogs zstd >/dev/null
+          df -h /
+
+      - name: Download GSI and apps
+        run: |
+          mkdir -p gsi/extracted downloads/aurora downloads/firefox downloads/termux
+          curl -sSfL -o gsi.zip "$GSI_URL"
+          echo "$GSI_SHA256  gsi.zip" | sha256sum -c -
+          unzip -q gsi.zip -d gsi/extracted && rm gsi.zip
+          curl -sSfL -o downloads/aurora/aurora-4.8.4.apk https://f-droid.org/repo/com.aurora.store_76.apk
+          curl -sSfL -o downloads/firefox/firefox-158.0-x86_64.apk https://archive.mozilla.org/pub/fenix/releases/158.0/android/fenix-158.0-android-x86_64/fenix-158.0.multi.android-x86_64.apk
+          for vc in $(curl -sSf https://f-droid.org/api/v1/packages/com.termux | python3 -c "import sys,json;print(' '.join(str(p['versionCode']) for p in json.load(sys.stdin)['packages']))"); do
+            curl -sSfL -o downloads/termux/termux.apk "https://f-droid.org/repo/com.termux_${vc}.apk" || continue
+            if unzip -l downloads/termux/termux.apk | grep -q "lib/x86_64/"; then echo "termux versionCode $vc"; break; fi
+          done
+
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: "17" }
       - uses: gradle/actions/setup-gradle@v4
@@ -27,21 +63,28 @@ jobs:
           gradle -p apps/launcher assembleRelease --no-daemon
           rm -f "$RUNNER_TEMP/changeos.jks"
 
-      - name: Collect assets
+      - name: Build the ChangeOS system image
+        run: |
+          bash build/prep_image.sh 3700M | tail -6
+          python3 build/patch_gsi.py
+          e2fsck -fn work/system.img | tail -2
+          rm gsi/extracted/system.img
+
+      - name: Package
         run: |
           mkdir -p dist
-          V="${GITHUB_REF_NAME#v}"
           cp apps/launcher/app/build/outputs/apk/release/app-release.apk "dist/ChangeOSLauncher-$V.apk"
-          cp out/bootanimation.zip dist/bootanimation.zip
-          cp build/overlay/privapp-permissions-changeos.xml build/overlay/changeos-ecm.xml dist/
-          cp Logo.svg dist/ChangeOS-logo.svg
-          (cd dist && sha256sum * > SHA256SUMS.txt)
+          zstd -19 -T0 --long=27 -q work/system.img -o "dist/ChangeOS-$V-x86_64-system.img.zst"
+          rm work/system.img
           ls -la dist
+          for f in dist/*; do
+            test "$(stat -c %s "$f")" -lt 2147483648 || { echo "$f is over GitHub's 2 GB limit"; exit 1; }
+          done
+          # checksums go in the release notes, not as an extra file
+          cp "release-notes/${GITHUB_REF_NAME}.md" notes.md
+          { echo; echo "## SHA-256"; echo; echo '```'; (cd dist && sha256sum *); echo '```'; } >> notes.md
 
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "$GITHUB_REF_NAME" dist/* \
-            --title "ChangeOS ${GITHUB_REF_NAME#v} Sweet Vanilla" \
-            --notes-file release-notes/${GITHUB_REF_NAME}.md
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$TITLE" --notes-file notes.md
